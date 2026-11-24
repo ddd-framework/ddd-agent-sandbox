@@ -1,0 +1,1201 @@
+{
+  "package": "@mgamadeus/ddd-agent-sandbox",
+  "version": "0.1.0",
+  "generatedBy": "scripts/build-i18n-manifest.mjs",
+  "keys": [
+    {
+      "key": "%action% did not run for %name%.",
+      "text": "%action% did not run for %name%.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error toast after an action on a workspace was not carried out; %action% is the action's name (e.g. 'Offload'), %name% the workspace."
+    },
+    {
+      "key": "%action% failed.",
+      "text": "%action% failed.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error toast when an action on a workspace failed; %action% is the action's name (e.g. 'End session')."
+    },
+    {
+      "key": "%action% while a turn is running?",
+      "text": "%action% while a turn is running?",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): title of the dialog that asks for a reason before an action runs while an agent is working on the space; %action% is the action's name."
+    },
+    {
+      "key": "%action%: done for %name%.",
+      "text": "%action%: done for %name%.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): success toast after an action on a workspace; %action% is the action's name, %name% the workspace."
+    },
+    {
+      "key": "%name% could not be downloaded",
+      "text": "%name% could not be downloaded",
+      "files": [
+        "screen/SandboxFilePreview.tsx"
+      ],
+      "hint": "File manager (the admin's file area: folder tree, file list as grid or table, uploads, trash). %name% is a file or folder name."
+    },
+    {
+      "key": "%name% offloaded: %count% changes saved to the drive.",
+      "text": "%name% offloaded: %count% changes saved to the drive.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): success toast after offloading a workspace: its unsaved file changes were written to the cloud drive; %count% is a number."
+    },
+    {
+      "key": "A session is open: commands run and files live on the runner__sandbox-state",
+      "text": "A session is open: commands run and files live on the runner",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tooltip of the state 'Running': the workspace has an open session on the sandbox server."
+    },
+    {
+      "key": "A turn is running on this space",
+      "text": "A turn is running on this space",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): warning title: an agent conversation of this space is working right now."
+    },
+    {
+      "key": "Action__sandbox-audit",
+      "text": "Action",
+      "context": "sandbox-audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header of the audit table: which action was taken (start, offload, reset …)."
+    },
+    {
+      "key": "Actions for %name%",
+      "text": "Actions for %name%",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader label of the menu button with the actions of one workspace; %name% is the workspace."
+    },
+    {
+      "key": "Actions now can break the agent’s work; each asks for a reason, which is kept in the audit.",
+      "text": "Actions now can break the agent’s work; each asks for a reason, which is kept in the audit.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): warning text under 'A turn is running on this space'."
+    },
+    {
+      "key": "Actions__table-column",
+      "text": "Actions",
+      "context": "table-column",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Screen-reader name (hidden header) of the last table column, which holds a row's buttons (edit, delete, restart), in lists and admin screens."
+    },
+    {
+      "key": "Added__sandbox-change",
+      "text": "Added",
+      "context": "sandbox-change",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): type of an unsaved change in a workspace: a new file not yet in the drive."
+    },
+    {
+      "key": "An agent conversation of this space is working right now; the action can break its turn. Say why it must run now — the reason is kept in the audit.",
+      "text": "An agent conversation of this space is working right now; the action can break its turn. Say why it must run now — the reason is kept in the audit.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text of the dialog that asks for a reason before forcing an action while an agent works."
+    },
+    {
+      "key": "Audit__sandbox-tab",
+      "text": "Audit",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: the log of administrative actions (who started, offloaded, reset it, with outcome)."
+    },
+    {
+      "key": "By__sandbox-audit",
+      "text": "By",
+      "context": "sandbox-audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header of the audit table: who took the action."
+    },
+    {
+      "key": "Change__sandbox-change",
+      "text": "Change",
+      "context": "sandbox-change",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: the kind of an unsaved file change (added, changed, deleted, renamed)."
+    },
+    {
+      "key": "Changed__sandbox-change",
+      "text": "Changed",
+      "context": "sandbox-change",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): type of an unsaved change in a workspace: an existing file was modified."
+    },
+    {
+      "key": "Command__sandbox",
+      "text": "Command",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: the command line of a running process."
+    },
+    {
+      "key": "Commands__sandbox-tab",
+      "text": "Commands",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: the last commands the agent ran, with exit code, duration and output."
+    },
+    {
+      "key": "Conversation",
+      "text": "Conversation",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: the agent conversation (shown as #number, a link)."
+    },
+    {
+      "key": "Conversations",
+      "text": "Conversations",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): label/column: how many agent conversations used the workspace."
+    },
+    {
+      "key": "Conversations__sandbox-tab",
+      "text": "Conversations",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: the agent conversations that used it."
+    },
+    {
+      "key": "Deleted__sandbox-change",
+      "text": "Deleted",
+      "context": "sandbox-change",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): type of an unsaved change in a workspace: a file was deleted."
+    },
+    {
+      "key": "Disk__sandbox",
+      "text": "Disk",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: disk space the workspace uses against its limit."
+    },
+    {
+      "key": "Done__sandbox-action-outcome",
+      "text": "Done",
+      "context": "sandbox-action-outcome",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): outcome badge in the audit: the action was carried out."
+    },
+    {
+      "key": "Download__action",
+      "text": "Download",
+      "context": "action",
+      "files": [
+        "screen/SandboxFilePreview.tsx"
+      ],
+      "hint": "File manager, file details drawer (preview, name and description, facts, links, versions, activity). Context: action."
+    },
+    {
+      "key": "End session__sandbox-action",
+      "text": "End session",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx",
+        "screen/format.ts",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): action button/menu entry: end the workspace's running session on the sandbox server."
+    },
+    {
+      "key": "End the session of %name%?",
+      "text": "End the session of %name%?",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): title of the confirmation before ending a workspace's session; %name% is the workspace."
+    },
+    {
+      "key": "Errors__sandbox-command",
+      "text": "Errors",
+      "context": "sandbox-command",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): collapsible label: the error output (stderr) of a command."
+    },
+    {
+      "key": "Everything is saved in the drive.",
+      "text": "Everything is saved in the drive.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the 'Unsaved changes' tab: no file change is pending."
+    },
+    {
+      "key": "Everything on the runner is wiped: local files, installed packages, unsaved changes. Files in the drive stay. The agent starts from an empty workspace next time.",
+      "text": "Everything on the runner is wiped: local files, installed packages, unsaved changes. Files in the drive stay. The agent starts from an empty workspace next time.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text of the confirmation before resetting a workspace (destructive)."
+    },
+    {
+      "key": "Exited__sandbox-command-state",
+      "text": "Exited",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the command ended by itself (its exit code is shown next to it)."
+    },
+    {
+      "key": "Failed__sandbox-action-outcome",
+      "text": "Failed",
+      "context": "sandbox-action-outcome",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): outcome badge in the audit: the action failed."
+    },
+    {
+      "key": "Files__sandbox-tab",
+      "text": "Files",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: its files, read only, with a preview."
+    },
+    {
+      "key": "Folder path",
+      "text": "Folder path",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "File manager, breadcrumb path of the open folder."
+    },
+    {
+      "key": "Forced__sandbox-audit",
+      "text": "Forced",
+      "context": "sandbox-audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge in the audit: the action was forced while an agent was working (with a reason)."
+    },
+    {
+      "key": "Idle__sandbox-state",
+      "text": "Idle",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): state of a workspace: the session is open but nothing ran for a while."
+    },
+    {
+      "key": "Its files are not synced with a drive, so nothing is pending.",
+      "text": "Its files are not synced with a drive, so nothing is pending.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): info text in the 'Unsaved changes' tab when the workspace has no cloud drive."
+    },
+    {
+      "key": "Job__sandbox",
+      "text": "Job",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: the background job a process belongs to."
+    },
+    {
+      "key": "Kill job %id%__sandbox-action",
+      "text": "Kill job %id%",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): audit row: an admin killed the background job named %id% (a technical id, keep it as is)."
+    },
+    {
+      "key": "Kill job__sandbox-action",
+      "text": "Kill job",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/format.ts",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): button: stop a running background job of the workspace at once."
+    },
+    {
+      "key": "Kill the job %job%?",
+      "text": "Kill the job %job%?",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): title of the confirmation before stopping a background job; %job% is the job's id."
+    },
+    {
+      "key": "Killed__sandbox-command-state",
+      "text": "Killed",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the command was stopped (its job was killed, the session ended or a limit was hit)."
+    },
+    {
+      "key": "Last activity",
+      "text": "Last activity",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: when the workspace was last used."
+    },
+    {
+      "key": "Last change",
+      "text": "Last change",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: when the agent conversation last changed."
+    },
+    {
+      "key": "Last saved",
+      "text": "Last saved",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): label before the time the workspace's changes were last saved to the drive."
+    },
+    {
+      "key": "Link__sandbox-file",
+      "text": "Link",
+      "context": "sandbox-file",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge on a file entry that is a symbolic link."
+    },
+    {
+      "key": "Loading files",
+      "text": "Loading files",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "File manager (the admin's file area: folder tree, file list as grid or table, uploads, trash)."
+    },
+    {
+      "key": "Loading the audit",
+      "text": "Loading the audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader text while the audit list loads."
+    },
+    {
+      "key": "Loading the changes",
+      "text": "Loading the changes",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader text while the unsaved changes load."
+    },
+    {
+      "key": "Loading the conversations",
+      "text": "Loading the conversations",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader text while the conversations load."
+    },
+    {
+      "key": "Loading the processes",
+      "text": "Loading the processes",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader text while the processes load."
+    },
+    {
+      "key": "Loading the sandboxes",
+      "text": "Loading the sandboxes",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader text while the list of workspaces loads."
+    },
+    {
+      "key": "Memory__sandbox",
+      "text": "Memory",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: memory the workspace's session uses now (and its peak) against the limit."
+    },
+    {
+      "key": "Modified__sandbox-file",
+      "text": "Modified",
+      "context": "sandbox-file",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: when a file was last changed."
+    },
+    {
+      "key": "Mount__sandbox",
+      "text": "Mount",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: how the drive is attached to the workspace (FUSE = mounted, PLAIN = copied) and why."
+    },
+    {
+      "key": "Name__sandbox-file",
+      "text": "Name",
+      "context": "sandbox-file",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: file or folder name."
+    },
+    {
+      "key": "No action on this workspace yet.",
+      "text": "No action on this workspace yet.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the audit tab."
+    },
+    {
+      "key": "No command ran in this session yet.",
+      "text": "No command ran in this session yet.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the commands tab."
+    },
+    {
+      "key": "No conversation used this workspace yet.",
+      "text": "No conversation used this workspace yet.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the conversations tab."
+    },
+    {
+      "key": "No drive in this workspace",
+      "text": "No drive in this workspace",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): info title in the 'Unsaved changes' tab when the workspace has no cloud drive."
+    },
+    {
+      "key": "No preview for this type (%size%): download it to open it.",
+      "text": "No preview for this type (%size%): download it to open it.",
+      "files": [
+        "screen/SandboxFilePreview.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text when a file cannot be previewed safely; %size% is the file size."
+    },
+    {
+      "key": "No sandbox runner is configured in this application (AI.Sandbox.runner.host), so there is nothing to show.",
+      "text": "No sandbox runner is configured in this application (AI.Sandbox.runner.host), so there is nothing to show.",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox screen (admin): empty state when the application has no sandbox runner configured; AI.Sandbox.runner.host is a configuration key, keep it as it is."
+    },
+    {
+      "key": "No session: nothing runs.",
+      "text": "No session: nothing runs.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the processes tab of a workspace without an open session."
+    },
+    {
+      "key": "No session: the workspace is saved and starts again on the next command__sandbox-state",
+      "text": "No session: the workspace is saved and starts again on the next command",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tooltip of the state 'Offloaded'."
+    },
+    {
+      "key": "No workspace matches the search.",
+      "text": "No workspace matches the search.",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the list when the search finds nothing."
+    },
+    {
+      "key": "No workspace yet: a workspace appears with the first command of an agent space.",
+      "text": "No workspace yet: a workspace appears with the first command of an agent space.",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the list of workspaces."
+    },
+    {
+      "key": "Not run: a turn was running, a confirmation or a reason was missing__sandbox-action-outcome",
+      "text": "Not run: a turn was running, a confirmation or a reason was missing",
+      "context": "sandbox-action-outcome",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tooltip of the audit outcome 'Refused'."
+    },
+    {
+      "key": "Nothing is running.",
+      "text": "Nothing is running.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the processes tab."
+    },
+    {
+      "key": "Offload %name%?",
+      "text": "Offload %name%?",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): title of the confirmation before offloading a workspace; %name% is the workspace."
+    },
+    {
+      "key": "Offload__sandbox-action",
+      "text": "Offload",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx",
+        "screen/format.ts",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): action: save the workspace's unsaved changes to the drive and release its session (the workspace stays)."
+    },
+    {
+      "key": "Offloaded__sandbox-state",
+      "text": "Offloaded",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): state of a workspace: no open session; it is saved and starts again on the next command."
+    },
+    {
+      "key": "Only the beginning of the file is shown; download it for the rest.",
+      "text": "Only the beginning of the file is shown; download it for the rest.",
+      "files": [
+        "screen/SandboxFilePreview.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): note under a cut text preview of a workspace file."
+    },
+    {
+      "key": "Outcome__sandbox-audit",
+      "text": "Outcome",
+      "context": "sandbox-audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header of the audit table: whether the action ran, was refused or failed."
+    },
+    {
+      "key": "Output cut__sandbox-command",
+      "text": "Output cut",
+      "context": "sandbox-command",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the command's output was shortened."
+    },
+    {
+      "key": "Output__sandbox-command",
+      "text": "Output",
+      "context": "sandbox-command",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): collapsible label: the normal output (stdout) of a command."
+    },
+    {
+      "key": "Owner__sandbox",
+      "text": "Owner",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: who owns the agent space of the workspace."
+    },
+    {
+      "key": "Path__sandbox-change",
+      "text": "Path",
+      "context": "sandbox-change",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: the file path of an unsaved change."
+    },
+    {
+      "key": "Peak %size%",
+      "text": "Peak %size%",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): small line under the memory usage: the highest memory use of the session; %size% is a size like '930 MB'."
+    },
+    {
+      "key": "Pick a file to see it. Files are shown read only.",
+      "text": "Pick a file to see it. Files are shown read only.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): placeholder of the preview pane of the files tab."
+    },
+    {
+      "key": "Processes & jobs__sandbox-tab",
+      "text": "Processes & jobs",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: the running processes and background jobs."
+    },
+    {
+      "key": "Purpose__sandbox-conversation",
+      "text": "Purpose",
+      "context": "sandbox-conversation",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: what the agent conversation was started for."
+    },
+    {
+      "key": "Reason__sandbox-force",
+      "text": "Reason",
+      "context": "sandbox-force",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): label of the reason field / audit column: why an action had to be forced while an agent worked."
+    },
+    {
+      "key": "Refresh",
+      "text": "Refresh",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): button that loads the data again."
+    },
+    {
+      "key": "Refused__sandbox-action-outcome",
+      "text": "Refused",
+      "context": "sandbox-action-outcome",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): outcome badge in the audit: the action was not run (refused)."
+    },
+    {
+      "key": "Renamed__sandbox-change",
+      "text": "Renamed",
+      "context": "sandbox-change",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): type of an unsaved change in a workspace: a file was renamed."
+    },
+    {
+      "key": "Reset the workspace of %name%?",
+      "text": "Reset the workspace of %name%?",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): title of the destructive confirmation before resetting a workspace; %name% is the workspace (the user must type it)."
+    },
+    {
+      "key": "Reset workspace__sandbox-action",
+      "text": "Reset workspace",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/format.ts",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): destructive action: wipe the workspace's local state (files in the drive stay)."
+    },
+    {
+      "key": "Run anyway",
+      "text": "Run anyway",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): submit button of the dialog that forces an action while an agent works."
+    },
+    {
+      "key": "Runner__sandbox",
+      "text": "Runner",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: the sandbox server (pod) the workspace runs on."
+    },
+    {
+      "key": "Running jobs",
+      "text": "Running jobs",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): label: how many background jobs run in the workspace."
+    },
+    {
+      "key": "Running__sandbox-command-state",
+      "text": "Running",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the command is still running."
+    },
+    {
+      "key": "Running__sandbox-state",
+      "text": "Running",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): state of a workspace: a session is open and in use."
+    },
+    {
+      "key": "Running…",
+      "text": "Running…",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): label of the submit button while a forced action runs."
+    },
+    {
+      "key": "Sandboxes",
+      "text": "Sandboxes",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): page title: the list of the AI agents' workspaces (sandboxes)."
+    },
+    {
+      "key": "Sandboxes are not set up",
+      "text": "Sandboxes are not set up",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): info title when the application has no sandbox administration."
+    },
+    {
+      "key": "Search name, key, owner or runner…",
+      "text": "Search name, key, owner or runner…",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): placeholder of the search field of the workspace list."
+    },
+    {
+      "key": "Search sandboxes",
+      "text": "Search sandboxes",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader label of the search field of the workspace list."
+    },
+    {
+      "key": "Session log__sandbox-tab",
+      "text": "Session log",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: technical events of its session (memory limit hit, refused system calls, timeouts)."
+    },
+    {
+      "key": "Size__sandbox-file",
+      "text": "Size",
+      "context": "sandbox-file",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: file size."
+    },
+    {
+      "key": "Start session__sandbox-action",
+      "text": "Start session",
+      "context": "sandbox-action",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx",
+        "screen/format.ts",
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): action: open a session for the workspace on the sandbox server."
+    },
+    {
+      "key": "Started__sandbox",
+      "text": "Started",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header: when the process started."
+    },
+    {
+      "key": "State unknown__sandbox-command-state",
+      "text": "State unknown",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the server reports neither a state nor an exit code for the command."
+    },
+    {
+      "key": "State__sandbox",
+      "text": "State",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column/label: the state of a workspace or conversation."
+    },
+    {
+      "key": "The agents’ workspaces: one per agent space. Files and command output are shown as untrusted text, never run.",
+      "text": "The agents’ workspaces: one per agent space. Files and command output are shown as untrusted text, never run.",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): description under the page title."
+    },
+    {
+      "key": "The audit could not be loaded.",
+      "text": "The audit could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the audit tab."
+    },
+    {
+      "key": "The changes could not be loaded.",
+      "text": "The changes could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the unsaved changes tab."
+    },
+    {
+      "key": "The command was stopped: its job was killed, the session ended or a limit was hit__sandbox-command-state",
+      "text": "The command was stopped: its job was killed, the session ended or a limit was hit",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): hover text of the 'Killed' badge of a command."
+    },
+    {
+      "key": "The commands could not be loaded.",
+      "text": "The commands could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the commands tab."
+    },
+    {
+      "key": "The conversations could not be loaded.",
+      "text": "The conversations could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the conversations tab."
+    },
+    {
+      "key": "The file could not be loaded.",
+      "text": "The file could not be loaded.",
+      "files": [
+        "screen/SandboxFilePreview.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error in the preview of a workspace file."
+    },
+    {
+      "key": "The files could not be loaded.",
+      "text": "The files could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "File manager (the admin's file area: folder tree, file list as grid or table, uploads, trash)."
+    },
+    {
+      "key": "The job stops at once; its output so far stays in the command history.",
+      "text": "The job stops at once; its output so far stays in the command history.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text of the confirmation before stopping a background job."
+    },
+    {
+      "key": "The processes could not be loaded.",
+      "text": "The processes could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Workers admin, page of one transport (one queue of background jobs): error when the processes could not be loaded."
+    },
+    {
+      "key": "The runner stopped the command at its time limit__sandbox-command-state",
+      "text": "The runner stopped the command at its time limit",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): hover text of the 'Timed out' badge of a command."
+    },
+    {
+      "key": "The sandboxes could not be loaded.",
+      "text": "The sandboxes could not be loaded.",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the workspace list."
+    },
+    {
+      "key": "The server reports no state and no exit code for this command__sandbox-command-state",
+      "text": "The server reports no state and no exit code for this command",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): hover text of the 'State unknown' badge of a command."
+    },
+    {
+      "key": "The session is open but nothing ran for a while__sandbox-state",
+      "text": "The session is open but nothing ran for a while",
+      "context": "sandbox-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tooltip of the state 'Idle'."
+    },
+    {
+      "key": "The session log could not be loaded.",
+      "text": "The session log could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error of the session log tab."
+    },
+    {
+      "key": "The session log is empty.",
+      "text": "The session log is empty.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): empty state of the session log tab."
+    },
+    {
+      "key": "The session stops now, with every running command. The saved workspace stays; changes not yet in the drive can be lost — offload first to keep them.",
+      "text": "The session stops now, with every running command. The saved workspace stays; changes not yet in the drive can be lost — offload first to keep them.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text of the confirmation before ending a session."
+    },
+    {
+      "key": "The workspace could not be loaded.",
+      "text": "The workspace could not be loaded.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error when one workspace failed to load."
+    },
+    {
+      "key": "This folder is empty.",
+      "text": "This folder is empty.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Drive screen (cloud drive of the admin): empty state of a folder without files."
+    },
+    {
+      "key": "This workspace was not found.",
+      "text": "This workspace was not found.",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): error title when a workspace key is unknown."
+    },
+    {
+      "key": "Timed out__sandbox-command-state",
+      "text": "Timed out",
+      "context": "sandbox-command-state",
+      "files": [
+        "screen/format.ts"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the runner stopped the command at its time limit."
+    },
+    {
+      "key": "Turn running",
+      "text": "Turn running",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): small marker in the list: an agent conversation is working in this workspace right now."
+    },
+    {
+      "key": "Unsaved changes are written to the drive, then the session is released. The workspace stays and starts again on the next command.",
+      "text": "Unsaved changes are written to the drive, then the session is released. The workspace stays and starts again on the next command.",
+      "files": [
+        "screen/useSandboxActions.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): text of the confirmation before offloading a workspace."
+    },
+    {
+      "key": "Unsaved changes__sandbox-tab",
+      "text": "Unsaved changes",
+      "context": "sandbox-tab",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): tab of one workspace: file changes not yet saved to the cloud drive."
+    },
+    {
+      "key": "Warm up session",
+      "text": "Warm up session",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): action on a workspace that already has a session: make sure it is ready (start it again if needed)."
+    },
+    {
+      "key": "When__sandbox-audit",
+      "text": "When",
+      "context": "sandbox-audit",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header of the audit table: when the action was taken."
+    },
+    {
+      "key": "Workspace views",
+      "text": "Workspace views",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): screen reader label of the tabs of one workspace."
+    },
+    {
+      "key": "Workspace__sandbox",
+      "text": "Workspace",
+      "context": "sandbox",
+      "files": [
+        "screen/SandboxDetailScreen.tsx",
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): column header / root crumb: the workspace (one per agent space)."
+    },
+    {
+      "key": "exit %code%__sandbox-command",
+      "text": "exit %code%",
+      "context": "sandbox-command",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): badge: the exit code of a finished command (%code% is a number, e.g. 'exit 1'); keep it short."
+    },
+    {
+      "key": "job %id%",
+      "text": "job %id%",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): small text after a command: the background job it runs as; %id% is the job's id."
+    },
+    {
+      "key": "{count, plural, one {# change not yet in the drive} other {# changes not yet in the drive}}",
+      "text": "{count, plural, one {# change not yet in the drive} other {# changes not yet in the drive}}",
+      "files": [
+        "screen/SandboxDetailScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): summary line of the unsaved changes tab."
+    },
+    {
+      "key": "{count, plural, one {# running} other {# running}}",
+      "text": "{count, plural, one {# running} other {# running}}",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): summary next to the list search: how many workspaces have an open session."
+    },
+    {
+      "key": "{count, plural, one {# workspace} other {# workspaces}}",
+      "text": "{count, plural, one {# workspace} other {# workspaces}}",
+      "files": [
+        "screen/SandboxesScreen.tsx"
+      ],
+      "hint": "Sandbox admin screen (maintenance view of the AI agents' workspaces, where an agent runs commands and keeps files): summary next to the list search: how many workspaces exist."
+    }
+  ]
+}

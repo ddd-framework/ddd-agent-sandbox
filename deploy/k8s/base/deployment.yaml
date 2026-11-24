@@ -1,0 +1,83 @@
+# One session per pod: the pool size is the number of sessions that can run at once. When every pod is busy the
+# application releases idle sessions once and then refuses the call (no queue).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-runner
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-runner
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sandbox-runner
+    spec:
+      runtimeClassName: gvisor
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull
+      containers:
+        - name: runner
+          image: ghcr.io/ddd-framework/ddd-agent-sandbox-runner
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: RUNNER_WORKSPACE_LIMIT_BYTES
+              value: "3865470566"
+            - name: RUNNER_SESSION_MEMORY_LIMIT_BYTES
+              value: "2147483648"
+            - name: RUNNER_SESSION_TZ
+              value: UTC
+          resources:
+            requests:
+              cpu: 250m
+              memory: 1Gi
+            limits:
+              cpu: "2"
+              memory: 3Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: [ALL]
+              add: [SETUID, SETGID, KILL]
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            periodSeconds: 30
+            failureThreshold: 6
+          volumeMounts:
+            - name: workspace
+              mountPath: /workspace
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 256Mi
+        # a disk-backed local volume per pod with a hard size limit (ENOSPC at the limit, no eviction)
+        - name: workspace
+          ephemeral:
+            volumeClaimTemplate:
+              spec:
+                accessModes: [ReadWriteOnce]
+                storageClassName: sandbox-workspace
+                resources:
+                  requests:
+                    storage: 4Gi

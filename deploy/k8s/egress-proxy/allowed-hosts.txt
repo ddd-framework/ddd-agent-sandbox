@@ -1,0 +1,1 @@
+# one host per line as an anchored regular expression, e.g. ^pypi\.org$ (rendered from AI.Sandbox.runner.network.allowedHosts)

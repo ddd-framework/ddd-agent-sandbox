@@ -1,0 +1,21 @@
+# The sandbox runner pool of one project and stage (Kustomize base). A project keeps an overlay of its own that sets
+# the namespace, the image tag, the replicas, the limits and the callers; `app:agent-sandbox:render-deploy` writes that
+# overlay from config/app/AI/Sandbox/runner.php. Requires gVisor on the nodes (RuntimeClass `gvisor`) and a StorageClass
+# with a hard size limit per volume for the workspace (see runner/README.md, "Workspace volume").
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: sandbox
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: ddd-agent-sandbox
+    includeSelectors: false
+resources:
+  - namespace.yaml
+  - resource-quota.yaml
+  - limit-range.yaml
+  - deployment.yaml
+  - service.yaml
+  - network-policy.yaml
+images:
+  - name: ghcr.io/ddd-framework/ddd-agent-sandbox-runner
+    newTag: 0.1.0

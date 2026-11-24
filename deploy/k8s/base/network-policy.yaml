@@ -1,0 +1,24 @@
+# Default deny in and out. In: TCP 8080 from the project's application pods only (the overlay names their namespace
+# and labels). Out: nothing (no DNS, no public address, no cluster service). The egress-proxy component adds the one
+# rule to the proxy when the project allows hosts (AI.Sandbox.runner.network.mode: allowList).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: sandbox-runner-isolation
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-runner
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: app
+          podSelector:
+            matchLabels:
+              app.kubernetes.io/name: app
+      ports:
+        - protocol: TCP
+          port: 8080
+  egress: []

@@ -1,0 +1,41 @@
+# Optional component: network for the sessions through an allow-list of hosts (AI.Sandbox.runner.network.mode:
+# allowList). NetworkPolicy matches addresses, not host names, so the sessions reach only this proxy, and the proxy
+# lets only the listed hosts through (HTTP CONNECT on 443, plain HTTP on 80). The application passes HTTP(S)_PROXY to
+# every session (SandboxSessionRulesService). `app:agent-sandbox:render-deploy` fills allowed-hosts.txt from
+# AI.Sandbox.runner.network.allowedHosts.
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+resources:
+  - deployment.yaml
+  - service.yaml
+  - network-policy.yaml
+configMapGenerator:
+  - name: sandbox-egress-proxy-config
+    files:
+      - tinyproxy.conf
+      - allowed-hosts.txt
+patches:
+  - target:
+      kind: NetworkPolicy
+      name: sandbox-runner-isolation
+    patch: |-
+      - op: replace
+        path: /spec/egress
+        value:
+          - to:
+              - podSelector:
+                  matchLabels:
+                    app.kubernetes.io/name: sandbox-egress-proxy
+            ports:
+              - protocol: TCP
+                port: 3128
+          - to:
+              - namespaceSelector:
+                  matchLabels:
+                    kubernetes.io/metadata.name: kube-system
+                podSelector:
+                  matchLabels:
+                    k8s-app: kube-dns
+            ports:
+              - protocol: UDP
+                port: 53

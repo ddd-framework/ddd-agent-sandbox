@@ -1,0 +1,21 @@
+{
+  "name": "sandbox-runner-node-toolkit",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Node libraries of the full sandbox toolkit (10-design.md section 17); installed below /opt/node, resolved from /node_modules",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "docx": "9.16.0",
+    "exceljs": "4.4.0",
+    "pdf-lib": "1.17.1",
+    "pdfjs-dist": "6.5.438",
+    "playwright": "1.65.1",
+    "pptxgenjs": "4.0.1",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-icons": "5.7.0",
+    "sharp": "0.35.5",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
+  }
+}

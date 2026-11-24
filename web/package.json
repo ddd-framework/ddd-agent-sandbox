@@ -1,0 +1,81 @@
+{
+  "name": "@mgamadeus/ddd-agent-sandbox",
+  "version": "0.1.0",
+  "description": "React frontend of the agent sandbox for backends built with mgamadeus/ddd (Composer package mgamadeus/ddd-agent-sandbox): the RTK Query client of the sandbox admin routes and the admin screens on the blocks of @mgamadeus/ddd-admin-ui (workspaces, files with safe previews, processes, commands, session log, audit, audited actions).",
+  "keywords": [
+    "ddd",
+    "mgamadeus",
+    "sandbox",
+    "admin",
+    "react",
+    "rtk-query"
+  ],
+  "homepage": "https://github.com/ddd-framework/ddd-agent-sandbox/tree/main/web#readme",
+  "bugs": {
+    "url": "https://github.com/ddd-framework/ddd-agent-sandbox/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ddd-framework/ddd-agent-sandbox.git",
+    "directory": "web"
+  },
+  "license": "MIT",
+  "author": "Marius-Eugen Gerdan <marius@gerdan.net>",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./screen": {
+      "types": "./dist/screen/index.d.ts",
+      "import": "./dist/screen/index.js"
+    },
+    "./i18n-keys.json": "./dist/i18n-keys.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/clean.mjs && tsup && node scripts/copy-i18n-manifest.mjs && node scripts/check-package.mjs .",
+    "typecheck": "tsc -p .",
+    "test": "node --experimental-strip-types --no-warnings --test \"src/**/*.test.ts\"",
+    "prepack": "pnpm build",
+    "i18n:manifest": "node scripts/build-i18n-manifest.mjs",
+    "i18n:check": "node scripts/build-i18n-manifest.mjs --check"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@12.16.1",
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@mgamadeus/ddd-admin-ui": ">=0.6.0 <1",
+    "@mgamadeus/ddd-web": ">=0.13.0 <1",
+    "lucide-react": ">=0.550.0 <2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@mgamadeus/ddd-admin-ui": "^0.6.0",
+    "@mgamadeus/ddd-web": "^0.13.0",
+    "@reduxjs/toolkit": "^2.13.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "lucide-react": "^1.66.0",
+    "radix-ui": "^1.8.1",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-hook-form": "^7.66.0",
+    "react-redux": "^9.3.1",
+    "tsup": "^9.0.0",
+    "typescript": "^6.0.3"
+  }
+}

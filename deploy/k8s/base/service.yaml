@@ -1,0 +1,15 @@
+# Headless: one A record per pod. The application resolves it and claims a session on one pod; every later call of the
+# session goes to that pod (AI.Sandbox.runner.host = sandbox-runner.<namespace>.svc.cluster.local).
+apiVersion: v1
+kind: Service
+metadata:
+  name: sandbox-runner
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: false
+  selector:
+    app.kubernetes.io/name: sandbox-runner
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

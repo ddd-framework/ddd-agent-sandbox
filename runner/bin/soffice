@@ -1,0 +1,9 @@
+#!/bin/bash
+# LibreOffice for the sandbox (10-design.md section 17): a fresh profile per call below HOME (session uids have no
+# passwd entry, so LibreOffice cannot place its default profile; two calls never share one), headless, no restore
+# or lock dialogs. Macros keep LibreOffice's default security level "high": only signed macros from trusted places.
+set -euo pipefail
+profile="$(mktemp -d "${HOME:-/tmp}/.soffice-profile-XXXXXX")"
+trap 'rm -rf "$profile"' EXIT
+/usr/lib/libreoffice/program/soffice -env:UserInstallation="file://$profile" --headless --norestore --nolockcheck \
+  --nodefault --nologo "$@"

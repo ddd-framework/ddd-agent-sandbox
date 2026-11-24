@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-egress-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sandbox-egress-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: sandbox-egress-proxy
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: tinyproxy
+          image: docker.io/vimagick/tinyproxy:1.11.2
+          args: ["-d", "-c", "/etc/tinyproxy/tinyproxy.conf"]
+          ports:
+            - name: proxy
+              containerPort: 3128
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+            limits:
+              cpu: 500m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          volumeMounts:
+            - name: config
+              mountPath: /etc/tinyproxy
+      volumes:
+        - name: config
+          configMap:
+            name: sandbox-egress-proxy-config

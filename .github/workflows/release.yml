@@ -1,0 +1,147 @@
+name: Release
+
+# Pushing a tag vX.Y.Z (the version in composer.json and web/package.json) releases the module:
+#  - the Composer package (Packagist reads the tag from the repository);
+#  - the runner images ghcr.io/ddd-framework/ddd-agent-sandbox-runner:X.Y.Z (toolkit base) and :X.Y.Z-full, built from
+#    runner/ with CONTRACT_VERSION=X.Y.Z compiled in, so GET /healthz reports contractVersion = X.Y.Z. The image build
+#    runs the runner's go vet and go test. The package's visibility is set once in the organisation's package settings.
+#  - the frontend package @mgamadeus/ddd-agent-sandbox in web/ on npm via trusted publishing (OIDC, no token) with
+#    provenance; a version already on npm is skipped. npm side (once): the first publish and
+#    `npm trust github @mgamadeus/ddd-agent-sandbox --repository ddd-framework/ddd-agent-sandbox --file release.yml --allow-publish`.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE: ghcr.io/ddd-framework/ddd-agent-sandbox-runner
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches composer.json and web/package.json
+        id: version
+        run: |
+          VERSION=$(php -r 'echo json_decode(file_get_contents("composer.json"))->version ?? "";')
+          WEB_VERSION=$(node -p "require('./web/package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match composer.json version ${VERSION} (expected v${VERSION})" >&2
+            exit 1
+          fi
+          if [ "${WEB_VERSION}" != "${VERSION}" ]; then
+            echo "web/package.json version ${WEB_VERSION} does not match composer.json version ${VERSION}" >&2
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      # the same rule as SandboxRunnerContract: the constant is the release's core version
+      - name: Contract constant matches the version
+        run: |
+          CONTRACT=$(grep -oE "CONTRACT_VERSION = '[^']+'" src/Domain/AI/Entities/Sandboxes/SandboxRunnerContract.php | head -1 | sed -E "s/.*'([^']+)'/\1/")
+          CORE_VERSION=$(echo "${{ steps.version.outputs.version }}" | sed -E 's/[-+].*$//')
+          if [ "${CONTRACT}" != "${CORE_VERSION}" ]; then
+            echo "SandboxRunnerContract::CONTRACT_VERSION ${CONTRACT} does not match the release ${CORE_VERSION}" >&2
+            exit 1
+          fi
+
+  php:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: imagick, intl
+          coverage: none
+          tools: composer:2.8
+      - run: composer install --no-interaction --no-progress --no-scripts
+      - run: vendor/bin/phpunit
+
+  runner-image:
+    needs: [verify, php]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        toolkit: [base, full]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: runner
+          platforms: linux/amd64
+          push: true
+          build-args: |
+            TOOLKIT=${{ matrix.toolkit }}
+            CONTRACT_VERSION=${{ needs.verify.outputs.version }}
+          tags: ${{ env.IMAGE }}:${{ needs.verify.outputs.version }}${{ matrix.toolkit == 'full' && '-full' || '' }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.verify.outputs.version }}
+            org.opencontainers.image.description=ddd-agent-sandbox runner (${{ matrix.toolkit }})
+      - name: The image reports the release as its contract version
+        run: |
+          TAG="${{ env.IMAGE }}:${{ needs.verify.outputs.version }}${{ matrix.toolkit == 'full' && '-full' || '' }}"
+          docker pull "$TAG"
+          docker run --rm --entrypoint cat "$TAG" /etc/sandbox-contract-version | grep -qx "${{ needs.verify.outputs.version }}"
+          docker run --rm --entrypoint cat "$TAG" /etc/sandbox-toolkit | grep -qx "${{ matrix.toolkit }}"
+
+  npm:
+    needs: [verify, php]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    env:
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: 0
+    steps:
+      - uses: actions/checkout@v4
+      # No `registry-url`: it writes an .npmrc with a placeholder token that npm would send instead of the OIDC token
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i -g corepack@latest && corepack enable
+      - name: Install npm with trusted publishing
+        run: npm install -g npm@11 && npm --version
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm i18n:check
+      - run: pnpm build
+      - name: Pack
+        run: pnpm pack --pack-destination "$RUNNER_TEMP"
+      - name: Tarball has every exports target and the documented entry split
+        run: |
+          mkdir -p "$RUNNER_TEMP/extracted"
+          tar -xzf "$(ls "$RUNNER_TEMP"/mgamadeus-ddd-agent-sandbox-*.tgz)" -C "$RUNNER_TEMP/extracted"
+          node scripts/check-package.mjs "$RUNNER_TEMP/extracted/package"
+      - name: Publish (trusted publishing, provenance)
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          case "$VERSION" in *-*) DIST_TAG=next ;; *) DIST_TAG=latest ;; esac
+          unset NODE_AUTH_TOKEN
+          if npm view "@mgamadeus/ddd-agent-sandbox@${VERSION}" version --registry https://registry.npmjs.org >/dev/null 2>&1; then
+            echo "@mgamadeus/ddd-agent-sandbox@${VERSION} is already on npm, nothing to publish"
+            exit 0
+          fi
+          npm publish "$(ls "$RUNNER_TEMP"/mgamadeus-ddd-agent-sandbox-*.tgz)" --provenance --tag "$DIST_TAG" --access public --registry https://registry.npmjs.org
