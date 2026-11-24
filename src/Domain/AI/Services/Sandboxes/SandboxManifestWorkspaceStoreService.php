@@ -429,6 +429,26 @@ class SandboxManifestWorkspaceStoreService extends Service implements SandboxWor
         return $keyPrefix === '' ? '' : $keyPrefix . '/';
     }
 
+    /** The name of the object store the workspaces live in (`AI.Sandbox.workspaces.objectStore`). */
+    public function getObjectStoreName(): string
+    {
+        return (string)(Config::get('AI.Sandbox.workspaces.objectStore') ?? static::DEFAULT_OBJECT_STORE_NAME);
+    }
+
+    /**
+     * Whether the object store of the workspaces is configured (a test's store counts). An incomplete store still
+     * throws: that is a configuration error, not a missing store.
+     */
+    public function isObjectStorageConfigured(): bool
+    {
+        if ($this->objectStorageOverride !== null) {
+            return true;
+        }
+        /** @var ObjectStorageService $objectStorageService */
+        $objectStorageService = DDDService::instance()->getService(ObjectStorageService::class);
+        return $objectStorageService->getObjectStorage($this->getObjectStoreName()) !== null;
+    }
+
     /**
      * @return ObjectStorage
      * @throws InternalErrorException when the store is not configured
@@ -438,7 +458,7 @@ class SandboxManifestWorkspaceStoreService extends Service implements SandboxWor
         if ($this->objectStorageOverride !== null) {
             return $this->objectStorageOverride;
         }
-        $storeName = (string)(Config::get('AI.Sandbox.workspaces.objectStore') ?? static::DEFAULT_OBJECT_STORE_NAME);
+        $storeName = $this->getObjectStoreName();
         /** @var ObjectStorageService $objectStorageService */
         $objectStorageService = DDDService::instance()->getService(ObjectStorageService::class);
         $objectStorage = $objectStorageService->getObjectStorage($storeName);

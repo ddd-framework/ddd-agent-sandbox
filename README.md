@@ -41,6 +41,9 @@ libraries, file tools — without network and without access to anything but its
      the content cache, `preloadDirectory`.
    - An object store `sandbox-workspaces` (`config/app/Common/ObjectStorage.php`, `OBJECT_STORAGE_SANDBOX_WORKSPACES_*`).
 4. In the deploy: `app:agent-sandbox:check-runner` (exit 1 on a problem) and `app:agent-sandbox:seed` (the preload).
+   The seed writes the drive library space whatever the sandbox's state; it skips the preload workspace with a note and
+   exits 0 while the sandbox is disabled or the workspaces' object store is not configured (it names what to set), so
+   it can stay in the deploy of a host without the sandbox. An error of a configured store still exits 1.
 5. The table `SandboxActionLogEntries` through the schema diff (`app:entity:show-sql SandboxActionLogEntry`).
 6. Two worker loops: `app:agent-sandbox:sessions --sweep` every minute and `app:agent-sandbox:sessions --expire` once
    a day. Before a runner rollout: `app:agent-sandbox:sessions --offload`.

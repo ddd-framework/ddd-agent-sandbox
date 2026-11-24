@@ -25,7 +25,9 @@ use Throwable;
  * `$SANDBOX_PRELOAD` (/workspace/.preload); a `start.sh` at its top runs once at the start of every session. Runs in
  * every deploy; an unchanged folder writes nothing. Symbolic links and files above 50 MB are refused. With the drive
  * store (`AI.Sandbox.workspaces.store` = drive) the folder also becomes the library space every drive workspace mounts
- * below drivespaces/ (only new or changed files are written; the drive keeps the history).
+ * below drivespaces/ (only new or changed files are written; the drive keeps the history). That library is seeded
+ * whatever the sandbox's state; the preload workspace is skipped with a note (exit 0) while the sandbox is disabled or
+ * the workspaces' object store is not configured. Errors of a configured store still fail the command.
  */
 #[AsCommand(
     name: 'app:agent-sandbox:seed',
@@ -62,17 +64,23 @@ class SandboxSeed extends Command
             $totalBytes = array_sum(array_map('strlen', $contentsByPath));
             /** @var SandboxWorkspacesService $sandboxWorkspacesService */
             $sandboxWorkspacesService = DDDService::instance()->getService(SandboxWorkspacesService::class);
-            if ($input->getOption('dryRun')) {
+            $isDryRun = (bool)$input->getOption('dryRun');
+            if ($isDryRun) {
                 $symfonyStyle->listing(array_keys($contentsByPath));
                 $symfonyStyle->writeln(sprintf('%d files, %s (dry run, nothing stored)', count($contentsByPath), SandboxWorkspaceSyncResult::formatBytes($totalBytes)));
-                foreach ($sandboxWorkspacesService->seedPreloadForLiveWorkspaces($contentsByPath, true) as $liveSeedLine) {
-                    $symfonyStyle->writeln($liveSeedLine);
-                }
+            }
+            // the library space the drive store's workspaces mount (drivespaces/<name>/): independent of the sandbox
+            // and of the workspace object store
+            foreach ($sandboxWorkspacesService->seedPreloadForLiveWorkspaces($contentsByPath, $isDryRun) as $liveSeedLine) {
+                $symfonyStyle->writeln($liveSeedLine);
+            }
+            $skipNote = $sandboxWorkspacesService->findPreloadWorkspaceSeedSkipNote();
+            if ($skipNote !== null) {
+                $symfonyStyle->note('preload workspace skipped: ' . $skipNote);
                 return Command::SUCCESS;
             }
-            // the drive store's workspaces mount the preload as a library space (drivespaces/<name>/)
-            foreach ($sandboxWorkspacesService->seedPreloadForLiveWorkspaces($contentsByPath, false) as $liveSeedLine) {
-                $symfonyStyle->writeln($liveSeedLine);
+            if ($isDryRun) {
+                return Command::SUCCESS;
             }
             $preloadManifest = $sandboxWorkspacesService->seedPreloadContent($contentsByPath);
             $symfonyStyle->success(sprintf(

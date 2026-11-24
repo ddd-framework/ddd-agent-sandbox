@@ -28,6 +28,7 @@ use DDD\Infrastructure\Exceptions\BadRequestException;
 use DDD\Infrastructure\Exceptions\ConflictException;
 use DDD\Infrastructure\Exceptions\InternalErrorException;
 use DDD\Infrastructure\Libs\Config;
+use DDD\Domain\AI\Services\Sandboxes\Agents\Drive\SandboxDriveWorkspaceStoreService;
 use DDD\Infrastructure\Services\DDDService;
 use DDD\Infrastructure\Services\Service;
 use Psr\Log\LoggerInterface;
@@ -316,6 +317,48 @@ class SandboxWorkspacesService extends Service
     {
         $sandboxWorkspaceStore = $this->getWorkspaceStore();
         return $sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore ? $sandboxWorkspaceStore->seedPreloadForLiveWorkspaces($contentsByPath, $dryRun) : [];
+    }
+
+    /**
+     * The note why `app:agent-sandbox:seed` leaves out the preload workspace (null = it is seeded): the sandbox is disabled, or
+     * the object store the workspace store keeps it in is not configured. The library space of the drive store
+     * ({@see seedPreloadForLiveWorkspaces()}) does not depend on either and is seeded anyway. Each reason names what
+     * is skipped, why and how to enable it. An unknown store name or an incomplete object store throws (a real error).
+     *
+     * @throws InternalErrorException
+     */
+    public function findPreloadWorkspaceSeedSkipNote(): ?string
+    {
+        if (!$this->getSandboxRunnerClientService()->isSandboxEnabled()) {
+            return 'the sandbox is disabled (AI.Sandbox.runner.enabled, env AGENT_SANDBOX_ENABLED): the preload workspace of the sandbox sessions is not seeded; enable the sandbox and run the seed again';
+        }
+        $manifestWorkspaceStore = $this->findManifestWorkspaceStoreBehind($this->getWorkspaceStore());
+        if ($manifestWorkspaceStore !== null && !$manifestWorkspaceStore->isObjectStorageConfigured()) {
+            $objectStoreName = $manifestWorkspaceStore->getObjectStoreName();
+            return sprintf(
+                'the object store "%s" of the sandbox workspaces is not configured: the preload workspace of the sandbox sessions is not seeded; configure it (OBJECT_STORAGE_%s_*, AI.Sandbox.workspaces.objectStore) and run the seed again',
+                $objectStoreName,
+                strtoupper((string)preg_replace('/[^A-Za-z0-9]/', '_', $objectStoreName))
+            );
+        }
+        return null;
+    }
+
+    /**
+     * The manifest store a workspace store keeps its manifests and contents in: the manifest store itself, or the one
+     * the drive store delegates to; null for a host's own store (it reports its own errors).
+     */
+    protected function findManifestWorkspaceStoreBehind(SandboxWorkspaceStore $sandboxWorkspaceStore): ?SandboxManifestWorkspaceStoreService
+    {
+        if ($sandboxWorkspaceStore instanceof SandboxManifestWorkspaceStoreService) {
+            return $sandboxWorkspaceStore;
+        }
+        if ($sandboxWorkspaceStore instanceof SandboxDriveWorkspaceStoreService) {
+            /** @var SandboxManifestWorkspaceStoreService $sandboxManifestWorkspaceStoreService */
+            $sandboxManifestWorkspaceStoreService = DDDService::instance()->getService(SandboxManifestWorkspaceStoreService::class);
+            return $sandboxManifestWorkspaceStoreService;
+        }
+        return null;
     }
 
     /**

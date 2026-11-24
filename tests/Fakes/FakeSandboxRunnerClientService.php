@@ -16,6 +16,9 @@ class FakeSandboxRunnerClientService extends SandboxRunnerClientService
     /** @var string[] */
     public array $runnerAddresses = ['10.0.0.1:8080'];
 
+    /** @var bool Whether the sandbox counts as enabled */
+    public bool $isSandboxEnabledForTest = true;
+
     /** @var array<string, array<string, string>> files (path => bytes) by session id */
     public array $filesBySessionId = [];
 
@@ -115,5 +118,10 @@ class FakeSandboxRunnerClientService extends SandboxRunnerClientService
         if (($this->sessionIdsByAddress[$runnerAddress] ?? null) !== $sessionId) {
             throw SandboxRunnerException::fromRunner(404, SandboxRunnerException::SESSION_NOT_FOUND, 'no such session');
         }
+    }
+
+    public function isSandboxEnabled(): bool
+    {
+        return $this->isSandboxEnabledForTest;
     }
 }

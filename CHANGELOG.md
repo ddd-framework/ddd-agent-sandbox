@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.4
+
+- `app:agent-sandbox:seed` on a host without the sandbox: the drive library space is seeded independently of the
+  workspace store; while the sandbox is disabled or the workspaces' object store is not configured, the preload
+  workspace is skipped with a note (what is skipped, why, what to set) and the command exits 0
+  (`SandboxWorkspacesService::findPreloadWorkspaceSeedSkipNote()`, `SandboxManifestWorkspaceStoreService::isObjectStorageConfigured()`).
+  An error of a configured store still exits 1. Contract 0.2.4, runner unchanged (0.2.0 compatible); still beside
+  ddd-clouddrive ^0.3.1.
+
 ## 0.2.3
 
 - Beside ddd-clouddrive 0.3 (every byte between a browser and the store goes through the backend): requires
