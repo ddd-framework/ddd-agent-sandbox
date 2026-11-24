@@ -105,6 +105,67 @@ class SandboxRunnerClientService extends Service
     }
 
     /**
+     * POST /v1/sessions in drive mode (runner/README.md › "Protocol (drive mode)"): /workspace becomes the working copy
+     * of a drive, further spaces are mounted below drivespaces/. The body carries no files.
+     *
+     * @param string $runnerAddress
+     * @param string $workspaceKey
+     * @param array<string, string> $environment variables of every shell of the session
+     * @param array<string, mixed> $driveBlock the runner's `drive` block (spaceId, cursor, thresholdBytes, mirrorBudgetBytes, ignore, entries, mounts)
+     * @return array<string, mixed> the claim answer (sessionId, uid, workspace, mode, transfer, drive)
+     * @throws SandboxRunnerException
+     */
+    public function claimDriveSession(string $runnerAddress, string $workspaceKey, array $environment, array $driveBlock): array
+    {
+        $body = ['workspaceKey' => $workspaceKey, 'mode' => 'drive', 'drive' => $driveBlock];
+        if ($environment !== []) {
+            $body['env'] = $environment;
+        }
+        return $this->requestJson($runnerAddress, 'POST', '/v1/sessions', [RequestOptions::JSON => $body], static::DEFAULT_CALL_TIMEOUT_SECONDS);
+    }
+
+    /**
+     * One drive call of a session in drive mode: GET …/drive/status, POST …/drive/stage, upload, commit, pull,
+     * materialize, resolve.
+     *
+     * @param string $runnerAddress
+     * @param string $sessionId
+     * @param string $method GET or POST
+     * @param string $driveCall status, stage, upload, commit, pull, materialize, resolve
+     * @param array<string, mixed>|null $body
+     * @return array<string, mixed>
+     * @throws SandboxRunnerException
+     */
+    public function callDrive(string $runnerAddress, string $sessionId, string $method, string $driveCall, ?array $body = null): array
+    {
+        $options = $body !== null ? [RequestOptions::JSON => (object)$body] : [];
+        return $this->requestJson($runnerAddress, $method, '/v1/sessions/' . rawurlencode($sessionId) . '/drive/' . rawurlencode($driveCall), $options, static::DEFAULT_CALL_TIMEOUT_SECONDS * 3);
+    }
+
+    /**
+     * POST /v1/sessions/{id}/execs/{seq}/continue: the answers to the drive requests of a paused exec (the in-session
+     * `drive` CLI); answers the exec result (final, or DRIVE_REQUESTS again).
+     *
+     * @param string $runnerAddress
+     * @param string $sessionId
+     * @param int $seq
+     * @param array<int, array<string, mixed>> $responses
+     * @param int $timeoutSeconds the command's timeout (the rest of it runs inside this call)
+     * @return array<string, mixed>
+     * @throws SandboxRunnerException
+     */
+    public function continueExec(string $runnerAddress, string $sessionId, int $seq, array $responses, int $timeoutSeconds): array
+    {
+        return $this->requestJson(
+            $runnerAddress,
+            'POST',
+            '/v1/sessions/' . rawurlencode($sessionId) . '/execs/' . $seq . '/continue',
+            [RequestOptions::JSON => ['responses' => $responses]],
+            $timeoutSeconds + static::CALL_TIMEOUT_MARGIN_SECONDS
+        );
+    }
+
+    /**
      * POST /v1/sessions/{id}/exec.
      *
      * @param string $runnerAddress

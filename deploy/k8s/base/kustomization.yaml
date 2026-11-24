@@ -18,4 +18,4 @@ resources:
   - network-policy.yaml
 images:
   - name: ghcr.io/ddd-framework/ddd-agent-sandbox-runner
-    newTag: 0.1.0
+    newTag: 0.2.0

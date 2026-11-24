@@ -12,4 +12,7 @@ class SandboxRunnerClaim
     public string $sessionId = '';
 
     public int $restoredFiles = 0;
+
+    /** @var array<string, mixed> The runner's claim answer as it came (a live store reads its mode's part) */
+    public array $claimAnswer = [];
 }

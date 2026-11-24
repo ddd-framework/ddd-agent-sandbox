@@ -12,6 +12,12 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// entities with lazy relations read the application's default repository type (the drive tests build such entities)
+if (getenv('LAZYLOAD_DEFAULT_REPO_TYPE') === false) {
+    putenv('LAZYLOAD_DEFAULT_REPO_TYPE=DB');
+    $_ENV['LAZYLOAD_DEFAULT_REPO_TYPE'] = 'DB';
+}
+
 class AgentSandboxTestContainer extends Container
 {
     /** @var object[] Instances by class */

@@ -1,4 +1,5 @@
 ---
+requiredAccountRights: ['useSandbox']
 decisionCriteria: "The user wants a file made, read or changed (Excel, Word, PDF, a presentation, CSV, a script), a calculation or analysis over data, or asks what is in the workspace."
 shortDescription: "works in the persistent workspace like on a computer: files, documents, calculations, scripts"
 subSkillNames: [Agent.Sandbox.Documents]

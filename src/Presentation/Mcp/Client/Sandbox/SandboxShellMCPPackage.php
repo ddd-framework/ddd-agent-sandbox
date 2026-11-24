@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace DDD\Presentation\Mcp\Client\Sandbox;
 
 use DDD\Domain\AI\Exceptions\Sandboxes\SandboxRunnerException;
+use DDD\Domain\AI\Entities\Sandboxes\SandboxAccountRights;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxWorkspaceSyncResult;
 use DDD\Domain\AI\Services\Sandboxes\SandboxFileViewScripts;
 use DDD\Domain\AI\Services\Sandboxes\SandboxWorkspacesService;
@@ -24,6 +25,7 @@ use DDD\Presentation\Mcp\Client\Sandbox\Dtos\ViewWorkspaceImagesRequestDto;
 use DDD\Presentation\Mcp\Client\Sandbox\Dtos\WriteWorkspaceFileRequestDto;
 use DDD\Domain\AI\Entities\Conversations\Agent\AgentToolCallProvenance;
 use DDD\Domain\AI\Entities\MCPPackages\MCPPackage;
+use DDD\Domain\AI\Entities\MCPPackages\MCPRequiresAccountRights;
 use DDD\Domain\AI\Entities\MCPPackages\MCPRequiresAdminWithAccessToAllResources;
 use DDD\Domain\AI\Entities\MCPPackages\MCPTool;
 use DDD\Domain\AI\Entities\MCPPackages\MCPToolEffect;
@@ -53,11 +55,13 @@ use DDD\Presentation\Mcp\Dtos\MCPToolResponse;
  * did not necessarily write (a file can come from anywhere a command copied it from), so they declare
  * MCPToolReturnsUntrustedContent and their results are screened.
  *
- * Gated: admins with access to all resources only, and only while the sandbox is enabled (`AI.Sandbox.runner.enabled`,
+ * Gated: the account right `useSandbox` ({@see SandboxAccountRights::USE_SANDBOX}, granted by ddd-agents' `AI.accountRights`),
+ * admins with access to all resources only, and only while the sandbox is enabled (`AI.Sandbox.runner.enabled`,
  * AGENT_SANDBOX_ENABLED). A host narrows it further with a gate in its skillRequirements.php; a host that opens it to
  * other accounts overrides the package (same-path subclass) and answers for what its accounts may run.
  */
 #[MCPRequiresAdminWithAccessToAllResources]
+#[MCPRequiresAccountRights(SandboxAccountRights::USE_SANDBOX)]
 class SandboxShellMCPPackage extends MCPPackage
 {
     public static ?string $name = 'agent.sandbox.shell';
@@ -142,7 +146,7 @@ class SandboxShellMCPPackage extends MCPPackage
     #[MCPToolReturnsUntrustedContent('command output can print the content of any workspace file')]
     public function shell(ShellRequestDto $requestDto, SandboxWorkspacesService $sandboxWorkspacesService, AgentToolCallProvenance $agentToolCallProvenance): SandboxToolResponseDto
     {
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $conversationKey = $this->getSandboxAgentWorkspaceKeysService()->resolveConversationKeyOfCall($agentToolCallProvenance);
         $startedAt = hrtime(true);
         $sandboxWorkspacesService->startCallTimings();
@@ -195,6 +199,11 @@ class SandboxShellMCPPackage extends MCPPackage
         }
         $responseDto->addLines($statusLine);
         $this->addOutputLines($responseDto, $execResult);
+        $hintLines = $sandboxWorkspacesService->buildCommandHintLines($workspaceKey, $execResult);
+        if ($hintLines !== []) {
+            // a drive workspace: files the command named that are not local, with the commands that fetch them
+            $responseDto->addLines(implode("\n", $hintLines));
+        }
         $this->addSyncLines($responseDto, $sandboxCommandRun->syncResult);
         $responseDto->setField('exitCode', $exitCode === null ? null : (int)$exitCode);
         $responseDto->setField('commandMs', (int)($execResult['durationMs'] ?? 0));
@@ -219,7 +228,7 @@ class SandboxShellMCPPackage extends MCPPackage
     #[MCPToolReturnsUntrustedContent('the content of a workspace file, which may come from a third party')]
     public function readFile(ReadWorkspaceFileRequestDto $requestDto, SandboxWorkspacesService $sandboxWorkspacesService, AgentToolCallProvenance $agentToolCallProvenance): SandboxToolResponseDto
     {
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $conversationKey = $this->getSandboxAgentWorkspaceKeysService()->resolveConversationKeyOfCall($agentToolCallProvenance);
         $startedAt = hrtime(true);
         $sandboxWorkspacesService->startCallTimings();
@@ -271,7 +280,7 @@ class SandboxShellMCPPackage extends MCPPackage
         AgentToolCallProvenance $agentToolCallProvenance
     ): MCPToolResponse {
         $relativePaths = $this->normalizeViewedImagePaths($requestDto->paths ?? []);
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $lines = [];
         $imageRenditions = [];
         foreach ($relativePaths as $relativePath) {
@@ -406,7 +415,7 @@ class SandboxShellMCPPackage extends MCPPackage
     #[MCPToolReturnsTrustedContent('a confirmation of the write (path, size, sync state), never file content')]
     public function writeFile(WriteWorkspaceFileRequestDto $requestDto, SandboxWorkspacesService $sandboxWorkspacesService, AgentToolCallProvenance $agentToolCallProvenance): SandboxToolResponseDto
     {
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $conversationKey = $this->getSandboxAgentWorkspaceKeysService()->resolveConversationKeyOfCall($agentToolCallProvenance);
         $startedAt = hrtime(true);
         $sandboxWorkspacesService->startCallTimings();
@@ -443,7 +452,7 @@ class SandboxShellMCPPackage extends MCPPackage
     #[MCPToolReturnsUntrustedContent('the edited lines and their neighbours, which may come from a third party')]
     public function editFile(EditWorkspaceFileRequestDto $requestDto, SandboxWorkspacesService $sandboxWorkspacesService, AgentToolCallProvenance $agentToolCallProvenance): SandboxToolResponseDto
     {
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $conversationKey = $this->getSandboxAgentWorkspaceKeysService()->resolveConversationKeyOfCall($agentToolCallProvenance);
         $startedAt = hrtime(true);
         $sandboxWorkspacesService->startCallTimings();
@@ -500,7 +509,7 @@ class SandboxShellMCPPackage extends MCPPackage
     #[MCPToolReturnsUntrustedContent('lines of workspace files, which may come from a third party')]
     public function searchFiles(SearchWorkspaceFilesRequestDto $requestDto, SandboxWorkspacesService $sandboxWorkspacesService, AgentToolCallProvenance $agentToolCallProvenance): SandboxToolResponseDto
     {
-        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $workspaceKey = $this->beginWorkspaceCall($sandboxWorkspacesService, $agentToolCallProvenance);
         $conversationKey = $this->getSandboxAgentWorkspaceKeysService()->resolveConversationKeyOfCall($agentToolCallProvenance);
         $startedAt = hrtime(true);
         $sandboxWorkspacesService->startCallTimings();
@@ -746,6 +755,10 @@ class SandboxShellMCPPackage extends MCPPackage
         if ($sandboxWorkspacesService->lastCallRestartedSession) {
             $responseDto->addLines(static::SESSION_RESTARTED_LINE);
         }
+        // a drive workspace: what the last turn end, this turn's pull or a failed save left for this conversation, once
+        foreach ($sandboxWorkspacesService->takePendingNotes($workspaceKey, $conversationKey) as $pendingNote) {
+            $responseDto->addLines($pendingNote);
+        }
         $responseDto->setField('workspaceKey', $workspaceKey);
         $responseDto->setField('restartedSession', $sandboxWorkspacesService->lastCallRestartedSession);
         $responseDto->setField('claimedSession', $sandboxWorkspacesService->lastCallClaimedSession);
@@ -983,6 +996,28 @@ class SandboxShellMCPPackage extends MCPPackage
             throw new BadRequestException(static::SANDBOX_DISABLED_MESSAGE);
         }
         return $this->getSandboxAgentWorkspaceKeysService()->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+    }
+
+    /**
+     * The workspace of the call, and the call's context for the workspace service and its store (turn, agent space,
+     * operator); refused while the sandbox is not enabled.
+     *
+     * @param SandboxWorkspacesService $sandboxWorkspacesService
+     * @param AgentToolCallProvenance|null $agentToolCallProvenance
+     * @return string
+     * @throws BadRequestException the sandbox is not enabled
+     * @throws InternalErrorException
+     */
+    protected function beginWorkspaceCall(SandboxWorkspacesService $sandboxWorkspacesService, ?AgentToolCallProvenance $agentToolCallProvenance): string
+    {
+        $workspaceKey = $this->resolveWorkspaceKeyOfCall($agentToolCallProvenance);
+        $sandboxAgentWorkspaceKeysService = $this->getSandboxAgentWorkspaceKeysService();
+        $sandboxWorkspacesService->setCallContext($sandboxAgentWorkspaceKeysService->buildCallContext(
+            $agentToolCallProvenance,
+            $workspaceKey,
+            $sandboxAgentWorkspaceKeysService->resolveConversationKeyOfCall($agentToolCallProvenance)
+        ));
+        return $workspaceKey;
     }
 
     protected function getSandboxAgentWorkspaceKeysService(): SandboxAgentWorkspaceKeysService

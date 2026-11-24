@@ -212,8 +212,8 @@ class SandboxAdministrationService extends Service
     }
 
     /**
-     * What the workspace holds that a drive does not have yet. The manifest store has no drive: always "no drive"
-     * (a drive store answers its own changes).
+     * What the workspace holds that a drive does not have yet. A live store (the drive store) answers its own changes;
+     * the manifest store has no drive: "no drive".
      *
      * @param string $workspaceKey
      * @return SandboxDriveStatus
@@ -223,6 +223,10 @@ class SandboxAdministrationService extends Service
     public function findDriveStatus(string $workspaceKey): SandboxDriveStatus
     {
         $this->requireKnownWorkspace($workspaceKey);
+        $sandboxWorkspaceStore = $this->getSandboxWorkspacesService()->getWorkspaceStore();
+        if ($sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore) {
+            return $sandboxWorkspaceStore->findDriveStatus($workspaceKey);
+        }
         return new SandboxDriveStatus();
     }
 
@@ -372,7 +376,10 @@ class SandboxAdministrationService extends Service
         }
         $sandboxOffloadResult = new SandboxOffloadResult();
         $sandboxOffloadResult->wasSessionReleased = $sandboxWorkspacesService->offloadSession($workspaceKey);
-        $sandboxOffloadResult->detail = $sandboxOffloadResult->wasSessionReleased ? 'saved, session released' : 'no session held';
+        $sandboxOffloadResult->committedChangeCount = $sandboxWorkspacesService->lastReleaseCommittedChangeCount;
+        $sandboxOffloadResult->detail = $sandboxOffloadResult->wasSessionReleased
+            ? 'saved' . ($sandboxOffloadResult->committedChangeCount > 0 ? ', ' . $sandboxOffloadResult->committedChangeCount . ' file(s) committed to the drive' : '') . ', session released'
+            : 'no session held';
         return $sandboxOffloadResult;
     }
 

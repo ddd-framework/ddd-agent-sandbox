@@ -7,6 +7,7 @@ namespace DDD\Domain\AI\Services\Sandboxes\Agents;
 use DDD\Domain\AI\Entities\AgentSpaces\AgentSpace;
 use DDD\Domain\AI\Entities\Conversations\Agent\AgentToolCallProvenance;
 use DDD\Domain\AI\Entities\Conversations\AIConversation;
+use DDD\Domain\AI\Entities\Sandboxes\SandboxCallContext;
 use DDD\Domain\AI\Services\Sandboxes\SandboxWorkspacesService;
 use DDD\Infrastructure\Exceptions\ForbiddenException;
 use DDD\Infrastructure\Services\AuthService;
@@ -76,6 +77,33 @@ class SandboxAgentWorkspaceKeysService extends Service
             ? $agentToolCallProvenance->conversation->getTreeRootConversationId()
             : ($agentToolCallProvenance?->rootConversationId ?? $agentToolCallProvenance?->conversationId ?? 0));
         return $conversationId > 0 ? static::buildConversationKey($conversationId) : SandboxWorkspacesService::CONVERSATION_KEY_WITHOUT_CONVERSATION;
+    }
+
+    /**
+     * Who a tool call works for, for the workspace service and its store: the turn (the owner message the call
+     * answers), the agent space of the call (an eval key's space included) and the operator (the conversation's owner,
+     * else the signed-in account).
+     *
+     * @param AgentToolCallProvenance|null $agentToolCallProvenance
+     * @param string $workspaceKey
+     * @param string $conversationKey
+     * @return SandboxCallContext
+     */
+    public function buildCallContext(?AgentToolCallProvenance $agentToolCallProvenance, string $workspaceKey, string $conversationKey): SandboxCallContext
+    {
+        $sandboxCallContext = new SandboxCallContext();
+        $sandboxCallContext->workspaceKey = $workspaceKey;
+        $sandboxCallContext->conversationKey = $conversationKey;
+        $sandboxCallContext->callProvenance = $agentToolCallProvenance;
+        $agentSpaceId = (int)($agentToolCallProvenance?->agentSpaceId ?? 0);
+        $sandboxCallContext->agentSpaceId = $agentSpaceId > 0 ? $agentSpaceId : $this->findAgentSpaceIdOfWorkspaceKey($workspaceKey);
+        $authAccountId = (int)(AuthService::instance()->getAccount()?->id ?? 0);
+        $operatorAccountId = $agentToolCallProvenance?->getConversationOwnerAccountIdOrAuthAccountId($authAccountId > 0 ? $authAccountId : null)
+            ?? ($authAccountId > 0 ? $authAccountId : null);
+        $sandboxCallContext->operatorAccountId = $operatorAccountId !== null && $operatorAccountId > 0 ? $operatorAccountId : null;
+        $turnMessageId = $agentToolCallProvenance?->getSourceUserMessageId() ?? $agentToolCallProvenance?->getToolCallOriginMessageId();
+        $sandboxCallContext->turnKey = $turnMessageId !== null ? (string)$turnMessageId : null;
+        return $sandboxCallContext;
     }
 
     /**

@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.0
+
+- **Drive store** (beside `mgamadeus/ddd-agents` 0.3.x and `mgamadeus/ddd-clouddrive` 0.2.x;
+  `AI.Sandbox.workspaces.store` = `drive`): `SandboxDriveWorkspaceStoreService`. The workspace of an agent space is the
+  working copy of its own drive: claim with the base map and the mounts (library below `drivespaces/library/`,
+  `$SANDBOX_PRELOAD` there, its `start.sh` once per session), save after a call through the runner's presigned
+  uploads, commit at the turn end, at release and on `drive commit`, pull at the first call of a turn and on
+  ddd-clouddrive's pull mark, the in-session `drive` CLI answered by PHP. Every other key stays in the manifest store.
+  Config `config/app/AI/Sandbox/drive.php`; working-copy listener `SandboxDriveWorkingCopyListener`.
+- **Port** `SandboxLiveWorkspaceStore` (extends `SandboxWorkspaceStore`): a store that works with the live session;
+  `SandboxWorkspacesService` hands claim, record, save, the CLI pause, release commit, reset, state note, current
+  manifest and turn-end commit of its keys to it. `SandboxWorkspacesService::setCallContext()` (`SandboxCallContext`:
+  turn, agent space, operator), `takePendingNotes()`, `buildCommandHintLines()`, `commitAtTurnEnd()`,
+  `seedPreloadForLiveWorkspaces()`; `SandboxRunnerClientService::claimDriveSession()`, `callDrive()`, `continueExec()`.
+- **Commands:** `app:agent-sandbox:migrate-to-drive` (manifest-store workspaces of agent spaces into their drives,
+  idempotent, `--dryRun`); `app:agent-sandbox:seed` also seeds the library space with the drive store.
+- **Admin:** the drive status of a workspace (`findDriveStatus`) and the offload's committed count come from the drive
+  store.
+- **Rights:** `SandboxAccountRights::USE_SANDBOX` (`useSandbox`) on the package `agent.sandbox.shell`
+  (`#[MCPRequiresAccountRights]`) and in the skill `Agent.Sandbox.Shell` (`requiredAccountRights`).
+- **Requires ddd-agents 0.3.x** (`conflict` `<0.3.0 || >=0.4.0`); the conversations of a workspace come from
+  `AIConversationsService::findNewestRootConversationsOfAgentSpaceId()`.
+- Runner unchanged; contract and images `0.2.0` (a 0.x minor needs the same runner minor: deploy the 0.2.0 images).
+
+What a host does: update ddd-agents to 0.3.x with this release; grant `useSandbox` (`AI.accountRights`, by default
+the superadmins); deploy the runner images 0.2.0. For the drive store: ddd-clouddrive 0.2.x, the transfer proxy,
+`store` = `drive`, `app:agent-sandbox:migrate-to-drive --dryRun`, then without `--dryRun`, then `app:agent-sandbox:seed`.
+
 ## 0.1.0
 
 First release.

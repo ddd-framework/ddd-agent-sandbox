@@ -23,7 +23,9 @@ use Throwable;
  * Makes the preloaded content equal to the project's preload folder (`AI.Sandbox.workspaces.preloadDirectory`, default
  * `resources/Sandbox/preload`): templates, kits, sample files. Every later claim restores it read-only below
  * `$SANDBOX_PRELOAD` (/workspace/.preload); a `start.sh` at its top runs once at the start of every session. Runs in
- * every deploy; an unchanged folder writes nothing. Symbolic links and files above 50 MB are refused.
+ * every deploy; an unchanged folder writes nothing. Symbolic links and files above 50 MB are refused. With the drive
+ * store (`AI.Sandbox.workspaces.store` = drive) the folder also becomes the library space every drive workspace mounts
+ * below drivespaces/ (only new or changed files are written; the drive keeps the history).
  */
 #[AsCommand(
     name: 'app:agent-sandbox:seed',
@@ -58,13 +60,20 @@ class SandboxSeed extends Command
                 $symfonyStyle->writeln('the preload folder ' . $configuredDirectory . ' does not exist; the preload is emptied');
             }
             $totalBytes = array_sum(array_map('strlen', $contentsByPath));
+            /** @var SandboxWorkspacesService $sandboxWorkspacesService */
+            $sandboxWorkspacesService = DDDService::instance()->getService(SandboxWorkspacesService::class);
             if ($input->getOption('dryRun')) {
                 $symfonyStyle->listing(array_keys($contentsByPath));
                 $symfonyStyle->writeln(sprintf('%d files, %s (dry run, nothing stored)', count($contentsByPath), SandboxWorkspaceSyncResult::formatBytes($totalBytes)));
+                foreach ($sandboxWorkspacesService->seedPreloadForLiveWorkspaces($contentsByPath, true) as $liveSeedLine) {
+                    $symfonyStyle->writeln($liveSeedLine);
+                }
                 return Command::SUCCESS;
             }
-            /** @var SandboxWorkspacesService $sandboxWorkspacesService */
-            $sandboxWorkspacesService = DDDService::instance()->getService(SandboxWorkspacesService::class);
+            // the drive store's workspaces mount the preload as a library space (drivespaces/<name>/)
+            foreach ($sandboxWorkspacesService->seedPreloadForLiveWorkspaces($contentsByPath, false) as $liveSeedLine) {
+                $symfonyStyle->writeln($liveSeedLine);
+            }
             $preloadManifest = $sandboxWorkspacesService->seedPreloadContent($contentsByPath);
             $symfonyStyle->success(sprintf(
                 'preload: %d files, %s, manifest version %d%s',

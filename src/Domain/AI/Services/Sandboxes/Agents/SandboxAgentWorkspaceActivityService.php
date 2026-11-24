@@ -61,7 +61,7 @@ class SandboxAgentWorkspaceActivityService extends Service implements SandboxWor
     public function findNewestConversationsOfAgentSpace(int $agentSpaceId, int $limit): SandboxConversations
     {
         $sandboxConversations = new SandboxConversations();
-        foreach ($this->getAIConversationsService()->findNewestRootConversationsOfAgentSpaceIdForSandbox($agentSpaceId, $limit)->getElements() as $agentConversation) {
+        foreach ($this->getAIConversationsService()->findNewestRootConversationsOfAgentSpaceId($agentSpaceId, $limit)->getElements() as $agentConversation) {
             $sandboxConversation = new SandboxConversation();
             $sandboxConversation->conversationId = (int)$agentConversation->conversationId;
             $sandboxConversation->accountId = $agentConversation->accountId;

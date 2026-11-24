@@ -12,10 +12,11 @@ class SandboxRunnerContractTest extends TestCase
 {
     public function testWhileTheMajorIsZeroTheMinorMustMatch(): void
     {
-        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.1.0'));
-        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.1.7'));
-        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.1.3-rc.1'));
-        self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion('0.2.0'));
+        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.2.0'));
+        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.2.7'));
+        self::assertTrue(SandboxRunnerContract::isCompatibleContractVersion('0.2.3-rc.1'));
+        self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion('0.1.0'));
+        self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion('0.3.0'));
         self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion('1.1.0'));
         self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion('0.0.0-dev'));
         self::assertFalse(SandboxRunnerContract::isCompatibleContractVersion(null));

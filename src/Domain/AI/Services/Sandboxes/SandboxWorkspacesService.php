@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace DDD\Domain\AI\Services\Sandboxes;
 
+use DDD\Domain\AI\Entities\Sandboxes\SandboxCallContext;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxCommandRun;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxDirtyMark;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxFileWrite;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxFreedScratch;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxJobRead;
+use DDD\Domain\AI\Entities\Sandboxes\SandboxLiveClaim;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxRunnerClaim;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxSession;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxSweepResult;
@@ -31,6 +33,7 @@ use DDD\Infrastructure\Services\Service;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Contracts\Service\Attribute\Required;
+use Throwable;
 
 /**
  * Persistent workspaces in the sandbox, addressed by an explicit workspace key (`[A-Za-z0-9][A-Za-z0-9._-]{0,127}`).
@@ -55,6 +58,9 @@ use Symfony\Contracts\Service\Attribute\Required;
  *   claim tried again; then the call is refused with a clear message (no queue).
  * - **Release after idle.** A session without a call for `idleReleaseSeconds` is saved and released by the next claim
  *   of any workspace (at most one sweep a minute) or by `app:agent-sandbox:sessions --sweep`.
+ * - **Live stores.** A key the configured store serves live ({@see SandboxLiveWorkspaceStore::isLiveWorkspace()}, e.g.
+ *   the drive store: the workspace IS the working copy of a drive) is claimed, saved, committed and pulled in the
+ *   store's protocol; the write-behind, the locks and the marks stay the same.
  */
 class SandboxWorkspacesService extends Service
 {
@@ -163,6 +169,15 @@ class SandboxWorkspacesService extends Service
     /** @var SandboxWorkspaceStore|null A store set by a test */
     protected ?SandboxWorkspaceStore $sandboxWorkspaceStoreOverride = null;
 
+    /** @var SandboxCallContext|null Who the current call is for (set by the agent part per tool call) */
+    protected ?SandboxCallContext $callContext = null;
+
+    /** @var int The files the last {@see releaseSession()} made visible in a live store (the admin's offload answer) */
+    public int $lastReleaseCommittedChangeCount = 0;
+
+    /** @var int The saved changes the last {@see resetSession()} dropped in a live store */
+    public int $lastResetDiscardedChangeCount = 0;
+
     /**
      * @param iterable<SandboxWorkspaceStore> $sandboxWorkspaceStores
      */
@@ -185,6 +200,122 @@ class SandboxWorkspacesService extends Service
         if (str_starts_with($workspaceKey, static::RESERVED_WORKSPACE_KEY_PREFIX)) {
             throw new BadRequestException('Workspace keys starting with "' . static::RESERVED_WORKSPACE_KEY_PREFIX . '" are reserved: ' . $workspaceKey);
         }
+    }
+
+    /**
+     * The context of the coming call: the live store notes it (agent space, operator), the claim and the turn's pull
+     * read it. Null for a console or a job.
+     *
+     * @param SandboxCallContext|null $sandboxCallContext
+     * @return void
+     * @throws InternalErrorException
+     */
+    public function setCallContext(?SandboxCallContext $sandboxCallContext): void
+    {
+        $this->callContext = $sandboxCallContext;
+        if ($sandboxCallContext === null) {
+            return;
+        }
+        $sandboxWorkspaceStore = $this->getWorkspaceStore();
+        if ($sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore) {
+            $sandboxWorkspaceStore->noteCallContext($sandboxCallContext);
+        }
+    }
+
+    /**
+     * @return SandboxCallContext|null
+     */
+    public function getCallContext(): ?SandboxCallContext
+    {
+        return $this->callContext;
+    }
+
+    /**
+     * @param string $workspaceKey
+     * @return SandboxLiveWorkspaceStore|null the configured store when it serves the key live
+     * @throws InternalErrorException
+     */
+    public function findLiveStoreOfWorkspace(string $workspaceKey): ?SandboxLiveWorkspaceStore
+    {
+        $sandboxWorkspaceStore = $this->getWorkspaceStore();
+        return $sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore && $sandboxWorkspaceStore->isLiveWorkspace($workspaceKey) ? $sandboxWorkspaceStore : null;
+    }
+
+    /**
+     * What the live store left for a conversation (a conflict at the last turn end, this turn's pull, a failed save),
+     * once; nothing for a manifest workspace.
+     *
+     * @param string $workspaceKey
+     * @param string $conversationKey
+     * @return string[]
+     * @throws InternalErrorException
+     */
+    public function takePendingNotes(string $workspaceKey, string $conversationKey): array
+    {
+        $sandboxWorkspaceStore = $this->getWorkspaceStore();
+        return $sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore ? $sandboxWorkspaceStore->takePendingNotes($workspaceKey, $conversationKey) : [];
+    }
+
+    /**
+     * Lines the live store adds to a command's answer (files the command named that are not local); none for a manifest
+     * workspace.
+     *
+     * @param string $workspaceKey
+     * @param array<string, mixed> $execAnswer
+     * @return string[]
+     * @throws InternalErrorException
+     */
+    public function buildCommandHintLines(string $workspaceKey, array $execAnswer): array
+    {
+        return $this->findLiveStoreOfWorkspace($workspaceKey)?->buildCommandHintLines($execAnswer) ?? [];
+    }
+
+    /**
+     * The end of a conversation's turn on a live workspace: under the save lock, the live store makes the
+     * conversation's saved changes visible (a drive commit). Never throws: a busy lock or a failure becomes a note.
+     *
+     * @param string $workspaceKey
+     * @param string $conversationKey
+     * @param int $operatorAccountId the account whose rights apply when no session names one
+     * @return string|null the summary line; null when nothing was to do or the key is no live workspace
+     * @throws InternalErrorException
+     */
+    public function commitAtTurnEnd(string $workspaceKey, string $conversationKey, int $operatorAccountId): ?string
+    {
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore === null) {
+            return null;
+        }
+        // what the write-behind holds of this or another conversation is saved first
+        if ($this->findDirtyMark($workspaceKey) !== null) {
+            $this->flushPendingChanges($workspaceKey);
+        }
+        try {
+            return $this->runUnderSaveLock($workspaceKey, fn(): ?string => $sandboxLiveWorkspaceStore->commitAtTurnEnd(
+                $this->findSession($workspaceKey),
+                $workspaceKey,
+                $conversationKey,
+                $operatorAccountId
+            ));
+        } catch (ConflictException $conflictException) {
+            $this->getTimingLogger()->error(sprintf('sandboxWorkspace.turnEnd workspace=%s conversation=%s: %s', $workspaceKey, $conversationKey, $conflictException->getMessage()));
+            return null;
+        }
+    }
+
+    /**
+     * Makes the preloaded content of the live store equal to the given files (`app:agent-sandbox:seed`, e.g. the
+     * library space every drive workspace mounts). Nothing without a live store.
+     *
+     * @param string[] $contentsByPath content by path relative to the preload folder
+     * @param bool $dryRun
+     * @return string[] lines for the seed's output
+     * @throws InternalErrorException
+     */
+    public function seedPreloadForLiveWorkspaces(array $contentsByPath, bool $dryRun): array
+    {
+        $sandboxWorkspaceStore = $this->getWorkspaceStore();
+        return $sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore ? $sandboxWorkspaceStore->seedPreloadForLiveWorkspaces($contentsByPath, $dryRun) : [];
     }
 
     /**
@@ -428,6 +559,11 @@ class SandboxWorkspacesService extends Service
      */
     public function findSavedManifest(string $workspaceKey): SandboxWorkspaceManifest
     {
+        $sandboxLiveWorkspaceStore = $workspaceKey !== static::PRELOAD_WORKSPACE_KEY ? $this->findLiveStoreOfWorkspace($workspaceKey) : null;
+        if ($sandboxLiveWorkspaceStore !== null) {
+            // others change a live workspace (a drive) without our token: never from the cache
+            return $sandboxLiveWorkspaceStore->buildCurrentManifest($workspaceKey);
+        }
         $cachedManifest = $this->readCachedManifest($workspaceKey);
         if ($cachedManifest !== null) {
             return $cachedManifest;
@@ -538,6 +674,10 @@ class SandboxWorkspacesService extends Service
             // the first call of a conversation: what another conversation left is saved first, NOTES.md is read from the store
             $this->flushPendingChanges($workspaceKey);
         }
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore !== null) {
+            return $this->buildLiveStateNote($sandboxLiveWorkspaceStore, $workspaceKey, $conversationKey, $ownerDescription);
+        }
         $workspaceDescription = $workspaceKey . ' (' . ($ownerDescription ?? 'persistent') . ')';
         $sandboxWorkspaceManifest = $this->findSavedManifest($workspaceKey);
         $workDirectoryLine = 'Your shell starts in ' . SandboxWorkspaceZones::buildWorkDirectoryOfConversation($conversationKey)
@@ -576,6 +716,45 @@ class SandboxWorkspacesService extends Service
     }
 
     /**
+     * The state note of a live workspace: the store's lines, the work directory, the toolkit and NOTES.md read from the
+     * session (the store's copy may lag behind it).
+     *
+     * @param SandboxLiveWorkspaceStore $sandboxLiveWorkspaceStore
+     * @param string $workspaceKey
+     * @param string $conversationKey
+     * @param string|null $ownerDescription
+     * @return string
+     * @throws InternalErrorException
+     */
+    protected function buildLiveStateNote(SandboxLiveWorkspaceStore $sandboxLiveWorkspaceStore, string $workspaceKey, string $conversationKey, ?string $ownerDescription): string
+    {
+        $sandboxSession = $this->findSession($workspaceKey);
+        $lines = $sandboxLiveWorkspaceStore->buildStateNoteLines($sandboxSession, $workspaceKey, $workspaceKey . ' (' . ($ownerDescription ?? 'persistent') . ')', $this->callContext);
+        $lines[] = 'Your shell starts in ' . SandboxWorkspaceZones::buildWorkDirectoryOfConversation($conversationKey)
+            . '/ (scratch of this conversation, kept ' . SandboxWorkspaceZones::SCRATCH_DAYS . ' days); paths below are relative to /workspace.';
+        $toolkitLine = $this->buildToolkitLine();
+        if ($toolkitLine !== null) {
+            $lines[] = $toolkitLine;
+        }
+        $notes = null;
+        if ($sandboxSession !== null) {
+            try {
+                $notes = $this->readFileBytesOrNull($sandboxSession, static::NOTES_PATH);
+            } catch (SandboxRunnerException) {
+                $notes = null;
+            }
+        }
+        if ($notes === null) {
+            $lines[] = 'No NOTES.md yet.';
+        } else {
+            $notesPreviewCharacters = (int)(Config::get('AI.Sandbox.workspaces.notesPreviewCharacters') ?? 4000);
+            $lines[] = 'NOTES.md' . (mb_strlen($notes) > $notesPreviewCharacters ? ' (first ' . $notesPreviewCharacters . ' characters)' : '') . ':';
+            $lines[] = rtrim(mb_substr($notes, 0, $notesPreviewCharacters));
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
      * The toolkit line of the state note (`AI.Sandbox.runner.toolkitNote`, e.g. what the project's image adds); null
      * without one.
      *
@@ -603,21 +782,44 @@ class SandboxWorkspacesService extends Service
         $this->lastClaimMilliseconds = 0;
         $sandboxSession = $this->findSession($workspaceKey);
         if ($sandboxSession !== null) {
-            return $sandboxSession;
+            return $this->prepareLiveCall($sandboxSession);
         }
         $lockToken = $this->waitForLock('claim.' . $workspaceKey);
         try {
             $sandboxSession = $this->findSession($workspaceKey);
-            if ($sandboxSession !== null) {
-                return $sandboxSession;
+            if ($sandboxSession === null) {
+                $phaseStartedAt = hrtime(true);
+                $this->releaseIdleSessionsWhenDue();
+                $this->addCallTiming('idleSweepMs', $phaseStartedAt);
+                $sandboxSession = $this->claimAndRestore($workspaceKey);
             }
-            $phaseStartedAt = hrtime(true);
-            $this->releaseIdleSessionsWhenDue();
-            $this->addCallTiming('idleSweepMs', $phaseStartedAt);
-            return $this->claimAndRestore($workspaceKey);
         } finally {
             $this->getCache()->releaseLock($this->buildCacheKey('lock', 'claim.' . $workspaceKey), $lockToken);
         }
+        return $this->prepareLiveCall($sandboxSession);
+    }
+
+    /**
+     * A live workspace: the store brings in what others changed (the first call of a turn, a requested pull). A fresh
+     * claim needs no pull; the store still notes the turn. Never fails the call.
+     *
+     * @param SandboxSession $sandboxSession
+     * @return SandboxSession
+     */
+    protected function prepareLiveCall(SandboxSession $sandboxSession): SandboxSession
+    {
+        try {
+            $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($sandboxSession->workspaceKey);
+        } catch (Throwable) {
+            return $sandboxSession;
+        }
+        if ($sandboxLiveWorkspaceStore === null) {
+            return $sandboxSession;
+        }
+        $startedAt = hrtime(true);
+        $sandboxLiveWorkspaceStore->prepareCall($sandboxSession, $this->callContext, $this->lastCallClaimedSession);
+        $this->addCallTiming('livePrepareMs', $startedAt);
+        return $sandboxSession;
     }
 
     /**
@@ -662,6 +864,7 @@ class SandboxWorkspacesService extends Service
      */
     public function releaseSession(string $workspaceKey): bool
     {
+        $this->lastReleaseCommittedChangeCount = 0;
         $sandboxSession = $this->findSession($workspaceKey);
         if ($sandboxSession === null) {
             return false;
@@ -669,6 +872,11 @@ class SandboxWorkspacesService extends Service
         try {
             // the store first, then the runner: the session is the only copy of what is not saved yet
             $this->flushWorkspace($sandboxSession);
+            $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+            if ($sandboxLiveWorkspaceStore !== null) {
+                // a live store makes every conversation's saved changes visible before the session goes
+                $this->lastReleaseCommittedChangeCount = $this->runUnderSaveLock($workspaceKey, fn(): int => $sandboxLiveWorkspaceStore->commitBeforeRelease($sandboxSession));
+            }
             $this->forgetUnsavedMarks($workspaceKey);
             $this->getSandboxRunnerClientService()->releaseSession($sandboxSession->runnerAddress, $sandboxSession->sessionId);
         } catch (SandboxRunnerException $sandboxRunnerException) {
@@ -763,11 +971,15 @@ class SandboxWorkspacesService extends Service
      */
     public function resetSession(string $workspaceKey): void
     {
+        $this->lastResetDiscardedChangeCount = 0;
         $lockToken = $this->waitForLock('claim.' . $workspaceKey);
         try {
-            $this->runUnderSaveLock($workspaceKey, function () use ($workspaceKey): void {
+            $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+            $this->runUnderSaveLock($workspaceKey, function () use ($workspaceKey, $sandboxLiveWorkspaceStore): void {
                 $this->discardSession($workspaceKey);
                 $this->forgetUnsavedMarks($workspaceKey);
+                // a live workspace keeps its drive; its saved, not yet visible changes go, so the next claim starts from the drive
+                $this->lastResetDiscardedChangeCount = $sandboxLiveWorkspaceStore?->discardSavedChanges($workspaceKey) ?? 0;
             });
         } finally {
             $this->getCache()->releaseLock($this->buildCacheKey('lock', 'claim.' . $workspaceKey), $lockToken);
@@ -846,7 +1058,7 @@ class SandboxWorkspacesService extends Service
      */
     public function isWorkspaceKnown(string $workspaceKey): bool
     {
-        return $this->findSession($workspaceKey) !== null || $this->readCachedManifest($workspaceKey) !== null;
+        return $this->findSession($workspaceKey) !== null || $this->readCachedManifest($workspaceKey) !== null || $this->findLiveStoreOfWorkspace($workspaceKey) !== null;
     }
 
     /**
@@ -957,6 +1169,20 @@ class SandboxWorkspacesService extends Service
     {
         $startedAt = hrtime(true);
         $workspaceKey = $sandboxSession->workspaceKey;
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore !== null) {
+            $phaseStartedAt = hrtime(true);
+            $sandboxWorkspaceSyncResult = $sandboxLiveWorkspaceStore->recordCallChanges($sandboxSession);
+            $this->addCallTiming('liveStatusMs', $phaseStartedAt);
+            if ($sandboxWorkspaceSyncResult->hasChanges()) {
+                $this->getCache()->set($this->buildCacheKey('dirty', $workspaceKey), SandboxDirtyMark::createNow($conversationKey)->toCachedValue(), static::SESSION_CACHE_SECONDS);
+                $phaseStartedAt = hrtime(true);
+                $this->startFlushProcess($workspaceKey);
+                $this->addCallTiming('flushStartMs', $phaseStartedAt);
+            }
+            $sandboxWorkspaceSyncResult->durationMilliseconds = (int)((hrtime(true) - $startedAt) / 1_000_000);
+            return $sandboxWorkspaceSyncResult;
+        }
         $phaseStartedAt = hrtime(true);
         $runnerManifest = $this->getSandboxRunnerClientService()->readManifest($sandboxSession->runnerAddress, $sandboxSession->sessionId);
         $this->addCallTiming('manifestMs', $phaseStartedAt);
@@ -1072,6 +1298,10 @@ class SandboxWorkspacesService extends Service
      */
     public function findCurrentManifest(string $workspaceKey): SandboxWorkspaceManifest
     {
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore !== null) {
+            return $sandboxLiveWorkspaceStore->buildCurrentManifest($workspaceKey);
+        }
         $seenManifest = $this->getCache()->get($this->buildCacheKey('seenManifest', $workspaceKey));
         return is_array($seenManifest) ? SandboxWorkspaceManifest::fromArray($seenManifest) : $this->findSavedManifest($workspaceKey);
     }
@@ -1093,6 +1323,20 @@ class SandboxWorkspacesService extends Service
         $workspaceKey = $sandboxSession->workspaceKey;
         // who made a new file: the call's conversation, else the conversation of the open mark (a flush process)
         $conversationKey ??= $this->findDirtyMark($workspaceKey)?->conversationKey;
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore !== null) {
+            $lockToken = $this->waitForLock('sync.' . $workspaceKey);
+            $this->addCallTiming('syncLockMs', $startedAt);
+            try {
+                $phaseStartedAt = hrtime(true);
+                $sandboxWorkspaceSyncResult = $sandboxLiveWorkspaceStore->saveSessionChanges($sandboxSession, $conversationKey);
+                $this->addCallTiming('liveSaveMs', $phaseStartedAt);
+            } finally {
+                $this->getCache()->releaseLock($this->buildCacheKey('lock', 'sync.' . $workspaceKey), $lockToken);
+            }
+            $sandboxWorkspaceSyncResult->durationMilliseconds = (int)((hrtime(true) - $startedAt) / 1_000_000);
+            return $sandboxWorkspaceSyncResult;
+        }
         // the seen manifest names the conversation of files the write-behind recorded before this flush
         $attributionManifest = $this->findCurrentManifest($workspaceKey);
         $lockToken = $this->waitForLock('sync.' . $workspaceKey);
@@ -1307,6 +1551,13 @@ class SandboxWorkspacesService extends Service
                 }
                 throw $sandboxRunnerException;
             }
+            if (!$background && ($execAnswer['status'] ?? '') === 'DRIVE_REQUESTS') {
+                // the in-session CLI waits for the host (commit, pull, get, pin): the live store answers it
+                $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($sandboxSession->workspaceKey);
+                if ($sandboxLiveWorkspaceStore !== null) {
+                    $execAnswer = $sandboxLiveWorkspaceStore->answerPausedCommand($sandboxSession, $execAnswer, $conversationKey, $timeoutSeconds);
+                }
+            }
             $sandboxCommandRun = new SandboxCommandRun();
             $sandboxCommandRun->execAnswer = $execAnswer;
             $sandboxCommandRun->runnerMilliseconds = (int)((hrtime(true) - $startedAt) / 1_000_000);
@@ -1403,6 +1654,10 @@ class SandboxWorkspacesService extends Service
         foreach ($sandboxWorkspaceStore->listWorkspaceKeys() as $workspaceKey) {
             if (str_starts_with($workspaceKey, static::RESERVED_WORKSPACE_KEY_PREFIX)) {
                 // the preload and other reserved keys never expire: the seed owns them
+                continue;
+            }
+            if ($sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore && $sandboxWorkspaceStore->isLiveWorkspace($workspaceKey)) {
+                // a live workspace's files live in its store's protocol (a drive keeps its own history and trash)
                 continue;
             }
             $expiryReport = new SandboxWorkspaceExpiryReport();
@@ -1671,6 +1926,10 @@ class SandboxWorkspacesService extends Service
         $this->flushPendingChanges($workspaceKey);
         $this->forgetUnsavedMarks($workspaceKey);
         $sandboxSessionRules = $this->getSandboxSessionRulesService()->findRulesOfWorkspace($workspaceKey);
+        $sandboxLiveWorkspaceStore = $this->findLiveStoreOfWorkspace($workspaceKey);
+        if ($sandboxLiveWorkspaceStore !== null) {
+            return $this->claimLiveSession($sandboxLiveWorkspaceStore, $workspaceKey, $sandboxSessionRules->poolName, $sandboxSessionRules->environment, $startedAt);
+        }
         $phaseStartedAt = hrtime(true);
         $sandboxWorkspaceManifest = $this->findSavedManifest($workspaceKey);
         $this->addCallTiming('claimStoreManifestMs', $phaseStartedAt);
@@ -1773,6 +2032,64 @@ class SandboxWorkspacesService extends Service
     }
 
     /**
+     * Claims a session in the live store's protocol: the store's claim block instead of restored files (the runner
+     * brings the files in itself), then the store finishes the claim.
+     *
+     * @param SandboxLiveWorkspaceStore $sandboxLiveWorkspaceStore
+     * @param string $workspaceKey
+     * @param string $poolName
+     * @param string[] $environment the rules' environment, by name
+     * @param int|float $startedAt hrtime(true) at the start of the claim
+     * @return SandboxSession
+     * @throws ConflictException every slot is busy
+     * @throws InternalErrorException
+     */
+    protected function claimLiveSession(SandboxLiveWorkspaceStore $sandboxLiveWorkspaceStore, string $workspaceKey, string $poolName, array $environment, int|float $startedAt): SandboxSession
+    {
+        $phaseStartedAt = hrtime(true);
+        $sandboxLiveClaim = $sandboxLiveWorkspaceStore->buildLiveClaim($workspaceKey);
+        $this->addCallTiming('claimLiveMapMs', $phaseStartedAt);
+        $this->callTimings['claimRestoredFiles'] = $sandboxLiveClaim->restoredFileCount;
+        $sessionEnvironment = $environment + $sandboxLiveClaim->environment;
+        $phaseStartedAt = hrtime(true);
+        $sandboxRunnerClaim = $this->claimOnAnyRunner($workspaceKey, $poolName, $sessionEnvironment, [], $sandboxLiveClaim);
+        if ($sandboxRunnerClaim === null) {
+            $this->releaseIdleSessions();
+            $sandboxRunnerClaim = $this->claimOnAnyRunner($workspaceKey, $poolName, $sessionEnvironment, [], $sandboxLiveClaim);
+        }
+        if ($sandboxRunnerClaim === null) {
+            $this->getTimingLogger()->warning(sprintf('sandboxWorkspace.claim refused workspace=%s pool=%s: every slot is busy', $workspaceKey, $poolName));
+            throw new ConflictException(static::ALL_SLOTS_BUSY_MESSAGE);
+        }
+        $this->addCallTiming('claimRunnerMs', $phaseStartedAt);
+        $sandboxSession = new SandboxSession();
+        $sandboxSession->workspaceKey = $workspaceKey;
+        $sandboxSession->sessionId = $sandboxRunnerClaim->sessionId;
+        $sandboxSession->runnerAddress = $sandboxRunnerClaim->runnerAddress;
+        $sandboxSession->poolName = $poolName;
+        $sandboxSession->claimedAt = time();
+        $sandboxSession->lastUsedAt = time();
+        $phaseStartedAt = hrtime(true);
+        try {
+            $sandboxLiveWorkspaceStore->finishLiveClaim($sandboxSession, $sandboxRunnerClaim->claimAnswer, $sandboxLiveClaim);
+        } catch (Throwable $throwable) {
+            // a claim the store could not finish is not kept: the runner slot goes back, the next call claims anew
+            try {
+                $this->getSandboxRunnerClientService()->releaseSession($sandboxSession->runnerAddress, $sandboxSession->sessionId);
+            } catch (Throwable) {
+                // the runner releases an unused session itself
+            }
+            throw $throwable;
+        }
+        $this->addCallTiming('claimLiveFinishMs', $phaseStartedAt);
+        $this->storeSession($sandboxSession);
+        $this->lastCallClaimedSession = true;
+        $this->lastClaimMilliseconds = (int)((hrtime(true) - $startedAt) / 1_000_000);
+        $this->addCallTiming('claimMs', $startedAt);
+        return $sandboxSession;
+    }
+
+    /**
      * The mode of a preloaded file: read-only, executable when the seeded file was.
      *
      * @param SandboxWorkspaceManifestFile $manifestFile
@@ -1818,18 +2135,22 @@ class SandboxWorkspacesService extends Service
      * @param string $poolName
      * @param string[] $environment by variable name
      * @param array<int, array<string, string>> $inlineFiles the claim's `files` (path, contentBase64, mode, mtime)
+     * @param SandboxLiveClaim|null $sandboxLiveClaim a live store's claim (its block instead of files)
      * @return SandboxRunnerClaim|null null when every runner of the pool is busy
      * @throws SandboxRunnerException a runner refused the claim for another reason than being busy
      */
-    protected function claimOnAnyRunner(string $workspaceKey, string $poolName, array $environment, array $inlineFiles): ?SandboxRunnerClaim
+    protected function claimOnAnyRunner(string $workspaceKey, string $poolName, array $environment, array $inlineFiles, ?SandboxLiveClaim $sandboxLiveClaim = null): ?SandboxRunnerClaim
     {
         $sandboxRunnerClientService = $this->getSandboxRunnerClientService();
         $lastUnreachable = null;
         foreach ($sandboxRunnerClientService->resolveRunnerAddresses($poolName) as $runnerAddress) {
             $attemptStartedAt = hrtime(true);
             try {
-                $claimAnswer = $sandboxRunnerClientService->claimSession($runnerAddress, $workspaceKey, $environment, $inlineFiles);
+                $claimAnswer = $sandboxLiveClaim !== null
+                    ? $sandboxRunnerClientService->claimDriveSession($runnerAddress, $workspaceKey, $environment, $sandboxLiveClaim->claimBlock)
+                    : $sandboxRunnerClientService->claimSession($runnerAddress, $workspaceKey, $environment, $inlineFiles);
                 $sandboxRunnerClaim = new SandboxRunnerClaim();
+                $sandboxRunnerClaim->claimAnswer = $claimAnswer;
                 $sandboxRunnerClaim->runnerAddress = $runnerAddress;
                 $sandboxRunnerClaim->sessionId = (string)($claimAnswer['sessionId'] ?? '');
                 $sandboxRunnerClaim->restoredFiles = (int)($claimAnswer['restoredFiles'] ?? 0);
@@ -1901,6 +2222,14 @@ class SandboxWorkspacesService extends Service
     protected function forgetSession(string $workspaceKey): void
     {
         $this->getCache()->delete($this->buildCacheKey('session', $workspaceKey));
+        try {
+            $sandboxWorkspaceStore = $this->getWorkspaceStore();
+        } catch (Throwable) {
+            $sandboxWorkspaceStore = null;
+        }
+        if ($sandboxWorkspaceStore instanceof SandboxLiveWorkspaceStore) {
+            $sandboxWorkspaceStore->forgetSessionState($workspaceKey);
+        }
         $sessionIndex = array_values(array_diff($this->readSessionIndex(), [$workspaceKey]));
         $this->getCache()->set($this->buildCacheKey('sessionIndex', 'all'), $sessionIndex, static::SESSION_CACHE_SECONDS);
     }
