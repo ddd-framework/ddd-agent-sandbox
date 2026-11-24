@@ -1,0 +1,188 @@
+{
+    "generatedBy": "ddd-server-messages build — keys generated from src/, hints written by hand and kept",
+    "format": 1,
+    "package": "mgamadeus/ddd-agent-sandbox",
+    "scanDirectories": [],
+    "excludedFiles": [
+        "/SandboxImageConfigService\\.php$"
+    ],
+    "keys": [
+        {
+            "key": "A conversation turn is running on this space: wait for it to end, or force the action with a reason",
+            "text": "A conversation turn is running on this space: wait for it to end, or force the action with a reason",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when an action is started while the agent is working in this workspace; the operator can wait or force it with a reason.",
+            "origins": [
+                "SandboxesAdminService::runAction"
+            ]
+        },
+        {
+            "key": "A file path is needed",
+            "text": "A file path is needed",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a file is to be opened but no file path was given.",
+            "origins": [
+                "SandboxesAdminService::normalizeRelativePath"
+            ]
+        },
+        {
+            "key": "A forced action needs a reason",
+            "text": "A forced action needs a reason",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when an action is forced while the agent works, but the operator gave no reason for forcing it.",
+            "origins": [
+                "SandboxesAdminService::runAction"
+            ]
+        },
+        {
+            "key": "A reset needs the workspace's name as confirmation",
+            "text": "A reset needs the workspace's name as confirmation",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a workspace is to be reset but the operator did not type the workspace name to confirm.",
+            "origins": [
+                "SandboxesAdminService::runAction"
+            ]
+        },
+        {
+            "key": "Background jobs are not allowed in this workspace; run the command in the foreground. Nothing was run.",
+            "text": "Background jobs are not allowed in this workspace; run the command in the foreground. Nothing was run.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) refuses to start a command in the background; the command was not run. \"foreground\" means the command runs until it ends.",
+            "origins": [
+                "SandboxWorkspacesService::runShellCommand"
+            ]
+        },
+        {
+            "key": "Every sandbox slot is in use by another workspace right now. Try again in a minute; nothing was run.",
+            "text": "Every sandbox slot is in use by another workspace right now. Try again in a minute; nothing was run.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) cannot start because every sandbox place is taken by other workspaces; nothing was run, try again in a minute.",
+            "origins": [
+                "SandboxWorkspacesService"
+            ]
+        },
+        {
+            "key": "Every shell of this workspace is busy with another command. Wait for it, or start this one with background: true.",
+            "text": "Every shell of this workspace is busy with another command. Wait for it, or start this one with background: true.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) has every command line busy with another command. \"background: true\" is a technical option name; keep it unchanged.",
+            "origins": [
+                "SandboxWorkspacesService::runCommandInConversationShell"
+            ]
+        },
+        {
+            "key": "Killing a job needs the job id",
+            "text": "Killing a job needs the job id",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a running background job is to be stopped but no job was chosen.",
+            "origins": [
+                "SandboxesAdminService::runAction"
+            ]
+        },
+        {
+            "key": "No file at this path",
+            "text": "No file at this path",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a file is opened in a workspace's file browser but no file exists at that path (anymore).",
+            "origins": [
+                "SandboxesAdminService::buildFileContentResponse"
+            ]
+        },
+        {
+            "key": "No such folder in the workspace",
+            "text": "No such folder in the workspace",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a folder of a workspace's file browser does not exist (anymore). Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::buildFileEntriesOfSavedState",
+                "SandboxAdministrationService::findFileEntries"
+            ]
+        },
+        {
+            "key": "No such job in the session",
+            "text": "No such job in the session",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a background job to be stopped is no longer running in the workspace's session. Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::killJob"
+            ]
+        },
+        {
+            "key": "No such sandbox workspace",
+            "text": "No such sandbox workspace",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when the opened workspace (by its key in the URL) is unknown. Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::requireKnownWorkspace"
+            ]
+        },
+        {
+            "key": "No workspace with this key",
+            "text": "No workspace with this key",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when the opened workspace (by its key in the URL) does not exist. Neutral, short.",
+            "origins": [
+                "SandboxesAdminService::findWorkspace"
+            ]
+        },
+        {
+            "key": "The path leaves the workspace or is not valid",
+            "text": "The path leaves the workspace or is not valid",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a file path points outside the workspace or contains invalid parts; the file is not opened.",
+            "origins": [
+                "SandboxesAdminService::normalizeRelativePath"
+            ]
+        },
+        {
+            "key": "The platform holds no state of this session (only its runner knows it), so its changes cannot be saved: end it instead",
+            "text": "The platform holds no state of this session (only its runner knows it), so its changes cannot be saved: end it instead",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when \"Offload\" is pressed on a session the platform lost track of: its unsaved changes cannot be saved, so the operator is told to end it. \"Runner\" is the sandbox server, keep it as a technical term.",
+            "origins": [
+                "SandboxAdministrationService::offloadSession"
+            ]
+        },
+        {
+            "key": "The sandbox runner is unreachable; the last change is not saved yet. Try again in a moment; nothing was run.",
+            "text": "The sandbox runner is unreachable; the last change is not saved yet. Try again in a moment; nothing was run.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) cannot reach its sandbox server (\"runner\", a technical term); the last change is not saved yet and nothing was run.",
+            "origins": [
+                "SandboxWorkspacesService"
+            ]
+        },
+        {
+            "key": "The workspace has no running session to end",
+            "text": "The workspace has no running session to end",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when \"End session\" is pressed but the workspace has no running session (it is saved and offloaded). Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::endSession"
+            ]
+        },
+        {
+            "key": "The workspace has no running session, so it has no job to kill",
+            "text": "The workspace has no running session, so it has no job to kill",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a job is to be stopped but the workspace has no running session at all. Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::killJob"
+            ]
+        },
+        {
+            "key": "The workspace is busy with another call (claim or save). Try again; nothing was run.",
+            "text": "The workspace is busy with another call (claim or save). Try again; nothing was run.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) is still being started or saved by another call; nothing was run, try again.",
+            "origins": [
+                "SandboxWorkspacesService::waitForLock"
+            ]
+        },
+        {
+            "key": "The workspace needs a conversation with an agent space or an account.",
+            "text": "The workspace needs a conversation with an agent space or an account.",
+            "hint": "Error of the AI assistant when its sandbox (an isolated computer where it runs commands and keeps files) cannot pick a workspace because the conversation belongs to no agent space and no account; nothing was run.",
+            "origins": [
+                "SandboxAgentWorkspaceKeysService::resolveWorkspaceKeyOfCall"
+            ]
+        },
+        {
+            "key": "The workspace's session ended meanwhile, so it has no job to kill",
+            "text": "The workspace's session ended meanwhile, so it has no job to kill",
+            "hint": "Admin sandbox screen (operators only: the AI agent's sandbox workspaces, isolated computers where it runs commands and keeps files): error message from the server, shown in a toast or above the list when a job is to be stopped but the session ended while the operator looked at it. Neutral, short.",
+            "origins": [
+                "SandboxAdministrationService::killJob"
+            ]
+        },
+        {
+            "key": "the file is empty",
+            "text": "the file is empty",
+            "hint": "Reason why an uploaded or imported picture was refused: the file has no content (0 bytes). Starts lowercase because it can follow other text, e.g. a file name in an import list.",
+            "origins": [
+                "SandboxImageRenditionsService::readFirstFrame"
+            ]
+        }
+    ]
+}

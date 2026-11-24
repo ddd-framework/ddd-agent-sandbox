@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2
+
+- Server messages for a host's text export: `i18n/server-messages.json` lists the 22 messages the sandbox endpoints
+  answer with, with hints (built and checked by `ddd-server-messages` of mgamadeus/ddd 3.42; CI runs `build --check`).
+  A host merges it with `ddd-server-messages collect` and must not prune these keys. Requires mgamadeus/ddd ^3.42.0;
+  contract 0.2.2, runner 0.2.0 compatible.
+
 ## 0.2.1
 
 - `Agent.Sandbox.Documents` declares `turnMinimumSteps: 30` (ddd-agents 0.3.2): while it is loaded, a turn has at

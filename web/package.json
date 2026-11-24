@@ -1,6 +1,6 @@
 {
   "name": "@mgamadeus/ddd-agent-sandbox",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "React frontend of the agent sandbox for backends built with mgamadeus/ddd (Composer package mgamadeus/ddd-agent-sandbox): the RTK Query client of the sandbox admin routes and the admin screens on the blocks of @mgamadeus/ddd-admin-ui (workspaces, files with safe previews, processes, commands, session log, audit, audited actions).",
   "keywords": [
     "ddd",
