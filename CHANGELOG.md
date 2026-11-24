@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1
+
+- `Agent.Sandbox.Documents` declares `turnMinimumSteps: 30` (ddd-agents 0.3.2): while it is loaded, a turn has at
+  least 30 steps (under the planned-turn ceiling and its default cost cap), so building a deck or report, rendering,
+  checking and handing it over fits one reply instead of stopping before the hand-over.
+- `Agent.Sandbox.Documents`: show the files early. When a tool that shows files to the user is loaded, the agent shows
+  them right after the first build, before the check; a fix rebuilds the same paths.
+- Requires ddd-agents 0.3.2 beside this package (`conflict` `<0.3.2`): older versions do not know the skill key and
+  their skill-file lint reports it.
+- Contract 0.2.1; the runner is unchanged and runner 0.2.0 stays compatible (same minor). New images `0.2.1` are built
+  with the tag; deploying them is optional.
+
 ## 0.2.0
 
 - **Drive store** (beside `mgamadeus/ddd-agents` 0.3.x and `mgamadeus/ddd-clouddrive` 0.2.x;

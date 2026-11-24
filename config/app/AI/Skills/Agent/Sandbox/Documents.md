@@ -3,6 +3,7 @@ decisionCriteria: "The user wants a document for people built in the workspace: 
 shortDescription: "builds presentations, PDF reports, Excel workbooks and charts for people, checked page by page"
 isSubSkill: true
 subSkillNames: [Agent.Sandbox.Pptx, Agent.Sandbox.Pdf, Agent.Sandbox.Excel]
+turnMinimumSteps: 30
 description: >-
   Documents for people built in the workspace: a presentation (slides, deck, pptx), a PDF report, an Excel workbook
   or a chart image. Holds the data rules, number and language rules, the brand kit of the installation when it has
@@ -48,6 +49,10 @@ Check before handing over (once)
    chart or conclusion.
 3. Fix in the script, rebuild, look at the overview once more. A single page large only on suspicion
    (`pdftoppm -r 80 -f n -l n -png`). Never view the same pictures twice.
+
+Show early: when a tool that shows files to the user is loaded (a file card), show the files right after the first
+build, before the check; a fix rebuilds the same paths, so the card stays current, and the user has the result even if
+the turn ends early.
 
 Hand over: name every file made (pptx and its pdf) with its path, then a short answer with the key figures and the
 hints.
