@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3
+
+- Beside ddd-clouddrive 0.3 (every byte between a browser and the store goes through the backend): requires
+  ddd-clouddrive ^0.3.1 (conflict below 0.3.1). The drive store's presigned requests are server side (runner →
+  store: `stageChanges()` reservations, `createWorkspaceRestoreGrant()`) and unchanged in clouddrive 0.3; the runner
+  protocol is unchanged (contract 0.2.3, runner 0.2.0 compatible; the release builds the runner image 0.2.3 from the
+  same runner code, a host that pins 0.2.2 keeps working).
+
 ## 0.2.2
 
 - Server messages for a host's text export: `i18n/server-messages.json` lists the 22 messages the sandbox endpoints
