@@ -63,7 +63,7 @@
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@mgamadeus/ddd-admin-ui": "^0.8.0",
+    "@mgamadeus/ddd-admin-ui": "^0.8.1",
     "@mgamadeus/ddd-web": "^0.13.0",
     "@reduxjs/toolkit": "^2.13.0",
     "@types/node": "^24.0.0",

@@ -16,7 +16,8 @@
   `@mgamadeus/ddd-admin-ui/markdown`: raw HTML stays text, no picture is loaded, web and mail links only).
 - **Peer:** `@mgamadeus/ddd-admin-ui` ≥ 0.8.0 (was ≥ 0.6.0): `CodePreview`, `MarkdownFilePreview` and the loader types
   exist from 0.8.0. A host below 0.8.0 stays on 0.2.5.
-- PHP and runner unchanged. Contract 0.2.6, runner unchanged (0.2.0 compatible).
+- PHP and runner unchanged. Contract 0.2.6, runner unchanged (0.2.0 compatible). The web package is built and tested
+  against `@mgamadeus/ddd-admin-ui` 0.8.1 (lockfile); the peer floor stays 0.8.0.
 
 ## 0.2.5
 
