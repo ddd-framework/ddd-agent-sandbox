@@ -1,6 +1,6 @@
 {
   "package": "@mgamadeus/ddd-agent-sandbox",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "generatedBy": "scripts/build-i18n-manifest.mjs",
   "keys": [
     {

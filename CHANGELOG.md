@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.5
+
+- Beside ddd-clouddrive 0.4: the Composer constraints admit `^0.3.1 || ^0.4.0` (conflict below 0.3.1 and from 0.5.0).
+  The drive store uses no API that changed in clouddrive 0.4 (its suite passes against 0.4.0). Note for hosts on the
+  drive store: in clouddrive 0.4 the agent's direct `saveDriveFile` refuses a copy made from an older version of the
+  target instead of overwriting it (clouddrive's CHANGELOG). Contract 0.2.5,
+  runner unchanged (0.2.0 compatible).
+
 ## 0.2.4
 
 - `app:agent-sandbox:seed` on a host without the sandbox: the drive library space is seeded independently of the

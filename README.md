@@ -20,7 +20,7 @@ libraries, file tools — without network and without access to anything but its
   a call (`space-<agentSpaceId>`, `account-<accountId>`, an eval run's key), the flush at a settled turn, the state
   note, the eval participant and the workspace activity of the admin screen. Gated by the account right `useSandbox`
   (`SandboxAccountRights::USE_SANDBOX`).
-- **Drive store** (only beside ddd-agents and `mgamadeus/ddd-clouddrive` 0.2.x; `AI.Sandbox.workspaces.store` =
+- **Drive store** (only beside ddd-agents and `mgamadeus/ddd-clouddrive` ^0.3.1 or ^0.4; `AI.Sandbox.workspaces.store` =
   `drive`): the workspace of an agent space IS the working copy of its own drive (see "Drive store" below).
 - **Frontend** (`web/`, npm `@mgamadeus/ddd-agent-sandbox`): the RTK Query client of the admin routes and the admin
   screens (`./screen`) on the blocks of `@mgamadeus/ddd-admin-ui`.
@@ -78,7 +78,7 @@ libraries, file tools — without network and without access to anything but its
 
 ## Drive store
 
-Beside ddd-agents and ddd-clouddrive 0.2.x (Composer `conflict` outside that range), `AI.Sandbox.workspaces.store` =
+Beside ddd-agents and ddd-clouddrive ^0.3.1 or ^0.4 (Composer `conflict` outside that range), `AI.Sandbox.workspaces.store` =
 `drive` selects `SandboxDriveWorkspaceStoreService`, a `SandboxLiveWorkspaceStore`: the workspace service hands every
 step of a key it serves to it, every other key stays in the manifest store.
 
