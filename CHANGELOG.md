@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.8
+
+- Beside `mgamadeus/ddd-agents` 0.5: constraints `^0.3.2 || ^0.4.0 || ^0.5.0` (conflict below 0.3.2 and from 0.6.0).
+  The suite passes against ddd-agents 0.5.0.
+- With ddd-agents 0.5.0 or later, `app:agent:check-installation` requires the table `SandboxActionLogEntries` only
+  while the sandbox is switched on (`AI.Sandbox.runner.enabled`, or AGENT_SANDBOX_ENABLED):
+  `SandboxFeatureTableConditionProviderService` (namespace `Services\Sandboxes\Installation`, registered only beside
+  ddd-agents' `AgentFeatureTableConditionProvider`). Before, a host with the sandbox off got it as a BLOCKING missing
+  table. ddd-agents 0.5.0 has its own host steps (its CHANGELOG).
+- Contract 0.2.8, runner unchanged (0.2.0 compatible); web unchanged apart from the version.
+
 ## 0.2.7
 
 - Beside `mgamadeus/ddd-agents` 0.4: constraints `^0.3.2 || ^0.4.0` (conflict below 0.3.2 and from 0.5.0). The suite

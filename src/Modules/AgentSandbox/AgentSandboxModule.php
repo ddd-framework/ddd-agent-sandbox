@@ -24,6 +24,9 @@ class AgentSandboxModule extends DDDModule
      */
     public const string CLOUDDRIVE_PACKAGE_CLASS = 'DDD\\Domain\\CloudDrive\\Services\\AI\\DriveSpaceMountResolverService';
 
+    /** @var string The table condition port of ddd-agents (>= 0.5.0): the sandbox tables' condition registers only beside it */
+    public const string FEATURE_TABLE_CONDITION_PROVIDER_CLASS = 'DDD\\Domain\\AI\\Services\\Installation\\AgentFeatureTableConditionProvider';
+
     public static function getSourcePath(): string
     {
         return __DIR__ . '/../..';
@@ -56,6 +59,7 @@ class AgentSandboxModule extends DDDModule
             'DDD\\Domain\\AI\\Services\\Sandboxes\\Agents\\Drive\\' => self::CLOUDDRIVE_PACKAGE_CLASS,
             'DDD\\Domain\\AI\\Entities\\Sandboxes\\Drive\\' => self::CLOUDDRIVE_PACKAGE_CLASS,
             'DDD\\Symfony\\Commands\\Sandbox\\Agents\\Drive\\' => self::CLOUDDRIVE_PACKAGE_CLASS,
+            'DDD\\Domain\\AI\\Services\\Sandboxes\\Installation\\' => self::FEATURE_TABLE_CONDITION_PROVIDER_CLASS,
         ];
     }
 }

@@ -44,7 +44,9 @@ libraries, file tools — without network and without access to anything but its
    The seed writes the drive library space whatever the sandbox's state; it skips the preload workspace with a note and
    exits 0 while the sandbox is disabled or the workspaces' object store is not configured (it names what to set), so
    it can stay in the deploy of a host without the sandbox. An error of a configured store still exits 1.
-5. The table `SandboxActionLogEntries` through the schema diff (`app:entity:show-sql SandboxActionLogEntry`).
+5. The table `SandboxActionLogEntries` through the schema diff (`app:entity:show-sql SandboxActionLogEntry`). Only
+   needed while the sandbox is on: ddd-agents' (≥ 0.5.0) `app:agent:check-installation` does not require it while
+   `AI.Sandbox.runner.enabled` (or AGENT_SANDBOX_ENABLED) is off.
 6. Two worker loops: `app:agent-sandbox:sessions --sweep` every minute and `app:agent-sandbox:sessions --expire` once
    a day. Before a runner rollout: `app:agent-sandbox:sessions --offload`.
 7. Admin: one controller with `use SandboxesControllerTrait;` (operators only; the access hook

@@ -21,6 +21,7 @@ description: "Installs, configures and extends mgamadeus/ddd-agent-sandbox: the 
 | Rules per workspace | `SandboxSessionRulesService::findRulesOfWorkspace()` → `SandboxSessionRules` (pool, timeout caps, background jobs, environment) |
 | Admin | `SandboxesControllerTrait` → `SandboxesAdminService` (guard, audit, file delivery) → `SandboxAdministrationService` (runner, store); port `SandboxWorkspaceActivity` (tag `ai.sandbox_workspace_activity`) |
 | Agent part | `SandboxShellMCPPackage` (`agent.sandbox.shell`), `SandboxAgentWorkspaceKeysService`, `SandboxSettledTurnFlushListener`, `SandboxAgentEvalWorkspaceParticipantService`, `SandboxAgentWorkspaceActivityService` |
+| Installation check | beside ddd-agents ≥ 0.5.0: `Services\Installation\SandboxFeatureTableConditionProviderService` — `SandboxActionLogEntries` is required by `app:agent:check-installation` only while the sandbox is on |
 
 ## Rules
 
