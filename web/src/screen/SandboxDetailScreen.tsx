@@ -4,7 +4,7 @@ import { normalizeDddError } from '@mgamadeus/ddd-web/contract';
 import { Archive, ChevronRight, File, Folder, Link2, OctagonX, Play, Power, RefreshCw, RotateCcw } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 
-import type { PdfJsLoader } from '@mgamadeus/ddd-admin-ui/files';
+import type { FilePreviewLoaders } from '@mgamadeus/ddd-admin-ui/files';
 import { m } from '@mgamadeus/ddd-admin-ui/i18n';
 import { useTranslate } from '@mgamadeus/ddd-admin-ui/i18n';
 import { DateCell } from '@mgamadeus/ddd-admin-ui/list';
@@ -75,7 +75,7 @@ const errorText = (error: unknown, fallback: string) => normalizeDddError(error,
 const UntrustedText = ({ text, className }: { text: string | null | undefined; className?: string }) =>
   text ? <pre className={cn('max-h-64 overflow-auto rounded-lg bg-muted p-3 font-mono text-xs whitespace-pre-wrap break-all', className)}>{text}</pre> : null;
 
-const FilesTab = ({ api, workspaceKey, loadPdfJs }: { api: SandboxesApi; workspaceKey: string; loadPdfJs?: PdfJsLoader }) => {
+const FilesTab = ({ api, workspaceKey, loadPdfJs, loadCodeHighlighter, renderMarkdown }: { api: SandboxesApi; workspaceKey: string } & FilePreviewLoaders) => {
   const { t } = useTranslate();
   const [directory, setDirectory] = useState('');
   const [openFile, setOpenFile] = useState<SandboxFileEntry | null>(null);
@@ -142,7 +142,14 @@ const FilesTab = ({ api, workspaceKey, loadPdfJs }: { api: SandboxesApi; workspa
       <Card>
         <CardContent className="pt-6">
           {openFile ? (
-            <SandboxFilePreview api={api} workspaceKey={workspaceKey} file={openFile} loadPdfJs={loadPdfJs} />
+            <SandboxFilePreview
+              api={api}
+              workspaceKey={workspaceKey}
+              file={openFile}
+              loadPdfJs={loadPdfJs}
+              loadCodeHighlighter={loadCodeHighlighter}
+              renderMarkdown={renderMarkdown}
+            />
           ) : (
             <p className="py-10 text-center text-[13px] text-muted-foreground">{t('Pick a file to see it. Files are shown read only.')}</p>
           )}
@@ -436,7 +443,13 @@ const AuditTab = ({ api, workspaceKey }: { api: SandboxesApi; workspaceKey: stri
   );
 };
 
-export interface SandboxDetailScreenProps {
+/**
+ * `loadPdfJs`, `loadCodeHighlighter`, `renderMarkdown` (the loaders of the file blocks, each optional): pdf.js for the
+ * PDF preview, a highlighter for source files, and the renderer of a Markdown file. A workspace file is untrusted
+ * text: the host's `renderMarkdown` uses the untrusted pipeline (`MarkdownPreview untrusted` of
+ * `@mgamadeus/ddd-admin-ui/markdown`).
+ */
+export interface SandboxDetailScreenProps extends FilePreviewLoaders {
   api: SandboxesApi;
   workspaceKey: string;
   /** The open tab (controlled, e.g. from the URL); without it the screen keeps it. */
@@ -447,15 +460,14 @@ export interface SandboxDetailScreenProps {
   headerActions?: ReactNode;
   /** The link of a conversation in the host's agent screens; `null` = no link. */
   buildConversationHref?: (conversation: SandboxConversation) => string | null;
-  /** pdf.js of the host for the PDF preview. */
-  loadPdfJs?: PdfJsLoader;
 }
 
 /**
  * One workspace: its facts (state, disk and memory against their limits, mount mode, runner pod, owner) and the tabs
  * Files (read only, the safe preview), Unsaved changes, Processes & jobs (kill), Commands (exit code, duration, output
  * tails), Conversations, Session log and Audit. Start, offload, end and reset (typed name) are audited and refused
- * while a turn runs on the space unless forced with a reason. Everything from the sandbox is shown as text.
+ * while a turn runs on the space unless forced with a reason. Everything from the sandbox is shown as text; the one
+ * exception is a Markdown file when the host passes `renderMarkdown`, whose markup is the host's renderer's.
  */
 export const SandboxDetailScreen = ({
   api,
@@ -466,6 +478,8 @@ export const SandboxDetailScreen = ({
   headerActions,
   buildConversationHref,
   loadPdfJs,
+  loadCodeHighlighter,
+  renderMarkdown,
 }: SandboxDetailScreenProps) => {
   const { t } = useTranslate();
   const workspaceQuery = api.useSandboxQuery({ workspaceKey });
@@ -575,7 +589,15 @@ export const SandboxDetailScreen = ({
           onTabSelect={id => selectTab(id as SandboxDetailTab)}
           tabsLabel={t('Workspace views')}
         />
-        {tab === 'files' && <FilesTab api={api} workspaceKey={workspaceKey} loadPdfJs={loadPdfJs} />}
+        {tab === 'files' && (
+          <FilesTab
+            api={api}
+            workspaceKey={workspaceKey}
+            loadPdfJs={loadPdfJs}
+            loadCodeHighlighter={loadCodeHighlighter}
+            renderMarkdown={renderMarkdown}
+          />
+        )}
         {tab === 'changes' && <ChangesTab api={api} workspaceKey={workspaceKey} />}
         {tab === 'processes' && (
           <ProcessesTab api={api} workspace={workspace} killDisabled={busy} onKill={jobId => void actions.run({ kind: 'kill', workspace, jobId })} />

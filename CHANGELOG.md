@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.2.6
+
+- Web (`@mgamadeus/ddd-agent-sandbox`): the files tab draws source files and Markdown like the file blocks of
+  `@mgamadeus/ddd-admin-ui` do. `SandboxDetailScreen` and `SandboxFilePreview` take the two further loaders of the
+  host beside `loadPdfJs` and pass them to the preview: `loadCodeHighlighter` (a source file in colour, its tokens as
+  text nodes) and `renderMarkdown` (a Markdown file as markup, with the switch to its source). Both are optional:
+  without the highlighter a source file shows plain, without the renderer a Markdown file shows its source. The
+  server still sends every text as `text/plain`; the file's name decides the view (`sandboxTextViewOf`, exported:
+  `.md` / `.markdown` → Markdown, an extension the blocks know a language for → source, everything else plain text
+  as before). No new text key: the blocks' own keys (`Preview`, `Source`, "View of the Markdown file") come with the
+  admin-ui manifest.
+- **A workspace file is untrusted text.** The package still renders no file content as HTML; a host that passes
+  `renderMarkdown` passes the untrusted pipeline (`source => <MarkdownPreview source={source} untrusted />` of
+  `@mgamadeus/ddd-admin-ui/markdown`: raw HTML stays text, no picture is loaded, web and mail links only).
+- **Peer:** `@mgamadeus/ddd-admin-ui` ≥ 0.8.0 (was ≥ 0.6.0): `CodePreview`, `MarkdownFilePreview` and the loader types
+  exist from 0.8.0. A host below 0.8.0 stays on 0.2.5.
+- PHP and runner unchanged. Contract 0.2.6, runner unchanged (0.2.0 compatible).
+
 ## 0.2.5
 
 - Beside ddd-clouddrive 0.4: the Composer constraints admit `^0.3.1 || ^0.4.0` (conflict below 0.3.1 and from 0.5.0).

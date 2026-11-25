@@ -19,9 +19,10 @@ export {
   sandboxPathCrumbs,
   sandboxPreviewKindOf,
   sandboxResetPhraseOf,
+  sandboxTextViewOf,
   usagePercentOf,
 } from './format.ts';
-export type { SandboxCommandState, SandboxPreviewKind } from './format.ts';
+export type { SandboxCommandState, SandboxPreviewKind, SandboxTextView } from './format.ts';
 export { SandboxActionsMenu, SandboxesScreen, SandboxMountMode, SandboxUsageBar } from './SandboxesScreen.tsx';
 export type { SandboxesScreenProps } from './SandboxesScreen.tsx';
 export { SANDBOX_DETAIL_TABS, SandboxDetailScreen } from './SandboxDetailScreen.tsx';

@@ -14,6 +14,7 @@ import {
   sandboxPathCrumbs,
   sandboxPreviewKindOf,
   sandboxResetPhraseOf,
+  sandboxTextViewOf,
   usagePercentOf,
 } from './screen/format.ts';
 
@@ -125,6 +126,22 @@ describe('sandbox formats', () => {
     assert.equal(sandboxPreviewKindOf('image/svg+xml'), 'none');
     assert.equal(sandboxPreviewKindOf('text/html'), 'none');
     assert.equal(sandboxPreviewKindOf('application/octet-stream'), 'none');
+  });
+
+  it('draws a text by the name of its file: Markdown, a source file, else plain', () => {
+    assert.equal(sandboxTextViewOf('README.md'), 'markdown');
+    assert.equal(sandboxTextViewOf('notes.MARKDOWN'), 'markdown');
+    assert.equal(sandboxTextViewOf('src/Service.php'), 'code');
+    assert.equal(sandboxTextViewOf('app.ts'), 'code');
+    assert.equal(sandboxTextViewOf('data.json'), 'code');
+    assert.equal(sandboxTextViewOf('notes.txt'), 'text');
+    assert.equal(sandboxTextViewOf('table.csv'), 'text');
+    assert.equal(sandboxTextViewOf('output.log'), 'text');
+    assert.equal(sandboxTextViewOf('Makefile'), 'text');
+    assert.equal(sandboxTextViewOf('.env'), 'text');
+    // a name that only looks like a picture, a film or an archive is still the text the server sent
+    assert.equal(sandboxTextViewOf('picture.png'), 'text');
+    assert.equal(sandboxTextViewOf('film.mp4'), 'text');
   });
 
   it('walks workspace paths and limits', () => {

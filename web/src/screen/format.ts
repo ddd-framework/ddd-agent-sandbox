@@ -1,6 +1,7 @@
 // Labels, states and numbers of the sandbox screens. Pure: no React.
 import { Archive, CircleCheck, CircleDot, CircleX, Clock, Moon, Play, ShieldAlert } from 'lucide-react';
 
+import { extensionOf, filePreviewKind } from '@mgamadeus/ddd-admin-ui/files';
 import { formatUiNumber } from '@mgamadeus/ddd-admin-ui/i18n';
 import { m } from '@mgamadeus/ddd-admin-ui/i18n';
 import { defineStatusMap } from '@mgamadeus/ddd-admin-ui/logic';
@@ -160,6 +161,19 @@ export const sandboxPreviewKindOf = (contentType: string): SandboxPreviewKind =>
   if (type === 'application/pdf') return 'pdf';
   if (type === 'text/plain') return 'text';
   return 'none';
+};
+
+/** How the text of a file is drawn. */
+export type SandboxTextView = 'markdown' | 'code' | 'text';
+
+/**
+ * How the text of a file is drawn, by the file's name: the server sends every text as `text/plain`, so the name
+ * alone says Markdown (`.md`, `.markdown`) or a source file (the extensions the file blocks of
+ * `@mgamadeus/ddd-admin-ui` know a language for). Everything else stays plain text.
+ */
+export const sandboxTextViewOf = (fileName: string): SandboxTextView => {
+  const kind = filePreviewKind({ family: 'TEXT', extension: extensionOf(fileName) });
+  return kind === 'markdown' || kind === 'code' ? kind : 'text';
 };
 
 /** The inline text preview of the server stops here; a larger answer was cut. */
