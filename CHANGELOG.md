@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.7
+
+- Beside `mgamadeus/ddd-agents` 0.4: constraints `^0.3.2 || ^0.4.0` (conflict below 0.3.2 and from 0.5.0). The suite
+  passes against ddd-agents 0.4.0. Nothing changes for a host; ddd-agents 0.4.0 has its own host steps (its CHANGELOG).
+- PHP, web and runner unchanged. Contract 0.2.7, runner unchanged (0.2.0 compatible).
+
 ## 0.2.6
 
 - Web (`@mgamadeus/ddd-agent-sandbox`): the files tab draws source files and Markdown like the file blocks of

@@ -14,7 +14,7 @@ libraries, file tools — without network and without access to anything but its
   the port `SandboxWorkspaceStore` with the built-in manifest store (manifest and contents by sha256 in an object
   store), `SandboxSessionRulesService` (pool, timeouts, background jobs, network per workspace), the image and deploy
   renderers, and the administration with its audit table and endpoints.
-- **Agent part** (only beside `mgamadeus/ddd-agents` 0.3.x): the MCP package `agent.sandbox.shell`
+- **Agent part** (only beside `mgamadeus/ddd-agents` 0.3.x or 0.4.x): the MCP package `agent.sandbox.shell`
   (`shell`, `readFile`, `writeFile`, `editFile`, `searchFiles`, `viewWorkspaceImages`), the skill
   `Agent.Sandbox.Shell` and the document skills `Agent.Sandbox.Documents` → `.Pptx`, `.Pdf`, `.Excel`, the workspace of
   a call (`space-<agentSpaceId>`, `account-<accountId>`, an eval run's key), the flush at a settled turn, the state
