@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.12
+
+- Beside `mgamadeus/ddd-agents` 0.9: constraint `^0.3.2 || ^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0 || ^0.8.0 || ^0.9.0`
+  (conflict below 0.3.2 and from 0.10.0). The suite passes against ddd-agents 0.9.0. Nothing else changes; contract
+  0.2.12.
+
 ## 0.2.11
 
 - Beside `mgamadeus/ddd-agents` 0.8: constraint `^0.3.2 || ^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0 || ^0.8.0` (conflict
