@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.10
+
+- Beside `mgamadeus/ddd-agents` 0.7 and `mgamadeus/ddd-clouddrive` 0.5: constraints `^0.3.2 || ^0.4.0 || ^0.5.0 || ^0.6.0 || ^0.7.0`
+  (conflict below 0.3.2 and from 0.8.0) and `^0.3.1 || ^0.4.0 || ^0.5.0` (conflict below 0.3.1 and from 0.6.0). The
+  suite passes against ddd-agents 0.7.3 and ddd-clouddrive 0.5.0. Nothing else changes; contract 0.2.10.
+
 ## 0.2.9
 
 - Beside `mgamadeus/ddd-agents` 0.6: constraints `^0.3.2 || ^0.4.0 || ^0.5.0 || ^0.6.0` (conflict below 0.3.2 and from

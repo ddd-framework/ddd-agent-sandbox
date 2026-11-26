@@ -15,7 +15,7 @@ namespace DDD\Domain\AI\Entities\Sandboxes;
 class SandboxRunnerContract
 {
     /** @var string The contract this package release speaks (= the package version without a prerelease suffix) */
-    public const string CONTRACT_VERSION = '0.2.9';
+    public const string CONTRACT_VERSION = '0.2.10';
 
     /** @var string The lowest runner contract this package works with */
     public const string MINIMUM_CONTRACT_VERSION = '0.2.0';
