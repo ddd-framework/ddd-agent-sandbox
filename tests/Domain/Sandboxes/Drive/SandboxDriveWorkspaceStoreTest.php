@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace DDD\Tests\AgentSandbox\Domain\Sandboxes\Drive;
 
+use DDD\Domain\CloudDrive\Services\AI\External\ExternalDriveAgentStoreService;
+use DDD\Domain\AI\Entities\Drives\AgentDriveMount;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxCallContext;
 use DDD\Domain\AI\Entities\Sandboxes\SandboxWorkspaceSyncResult;
 use DDD\Domain\AI\Services\Sandboxes\Agents\Drive\SandboxDriveWorkspaceStoreService;
@@ -23,6 +25,17 @@ use RuntimeException;
  */
 class SandboxDriveWorkspaceStoreTest extends TestCase
 {
+    public function testExternalDriveMountsAreNeverMirroredIntoTheWorkspace(): void
+    {
+        $externalMount = new AgentDriveMount();
+        $externalMount->spaceKey = 'external/5';
+        $ownMount = new AgentDriveMount();
+        $ownMount->spaceKey = 'agentSpace/13';
+
+        self::assertSame(class_exists(ExternalDriveAgentStoreService::class), SandboxDriveWorkspaceStoreService::isExternalDriveMount($externalMount), 'an external mount is left out wherever external drives exist');
+        self::assertFalse(SandboxDriveWorkspaceStoreService::isExternalDriveMount($ownMount), 'the own drive stays mirrored');
+    }
+
     public function testItServesAgentSpaceKeysAndLeavesEveryOtherKeyToTheManifestStore(): void
     {
         $driveStore = new TestableSandboxDriveWorkspaceStoreService();

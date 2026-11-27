@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+- The workspace status lines leave out the mounts of external drives (ddd-clouddrive with AgentConnections of
+  ddd-agents): the drive tools reach them, the workspace mirrors none of them (`isExternalDriveMount()`). The drive claim
+  mounts only library spaces, so it sends no external mount. The composer constraints still end below ddd-agents 0.11
+  and ddd-clouddrive 0.6: they need raising when those releases ship.
+
 ## 0.2.13
 
 - Beside `mgamadeus/ddd-agents` 0.10: constraint adds `^0.10.0` (conflict below 0.3.2 and from 0.11.0). The suite

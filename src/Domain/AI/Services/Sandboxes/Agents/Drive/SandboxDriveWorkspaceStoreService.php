@@ -27,6 +27,7 @@ use DDD\Domain\AI\Services\Sandboxes\SandboxManifestWorkspaceStoreService;
 use DDD\Domain\AI\Services\Sandboxes\SandboxRunnerClientService;
 use DDD\Domain\AI\Services\Sandboxes\SandboxWorkspacesService;
 use DDD\Domain\AI\Services\Sandboxes\SandboxWorkspaceStore;
+use DDD\Domain\CloudDrive\Services\AI\External\ExternalDriveAgentStoreService;
 use DDD\Domain\CloudDrive\Entities\AI\Mounts\DriveSpaceMount;
 use DDD\Domain\CloudDrive\Entities\Blobs\DriveBlob;
 use DDD\Domain\CloudDrive\Entities\Changes\DriveChangeEvent;
@@ -1344,6 +1345,10 @@ class SandboxDriveWorkspaceStoreService extends Service implements SandboxLiveWo
         $callProvenance = $sandboxCallContext?->callProvenance;
         if ($callProvenance instanceof AgentToolCallProvenance) {
             foreach ($this->getCloudDriveAgentDriveStoreService()->findMountsOfCall($callProvenance)->getElements() as $agentDriveMount) {
+                // external drives are reached through the drive tools only: the workspace mirrors none of them
+                if (static::isExternalDriveMount($agentDriveMount)) {
+                    continue;
+                }
                 $lines[] = $agentDriveMount->buildStateLine();
             }
         } elseif ($sandboxDriveSessionState !== null) {
@@ -1370,6 +1375,12 @@ class SandboxDriveWorkspaceStoreService extends Service implements SandboxLiveWo
             }
         }
         return $lines;
+    }
+
+    /** An external drive's mount (ddd-clouddrive with AgentConnections); never mirrored into the workspace */
+    public static function isExternalDriveMount(AgentDriveMount $agentDriveMount): bool
+    {
+        return class_exists(ExternalDriveAgentStoreService::class) && ExternalDriveAgentStoreService::isExternalMount($agentDriveMount);
     }
 
     /**
